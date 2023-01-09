@@ -40,8 +40,6 @@ public class GetLogsFromAzure {
         String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);
         BlobServiceClient storageClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credential).buildClient();
         BlobContainerClient blobContainerClient = storageClient.getBlobContainerClient(containerName);
-        BlockBlobClient blobClient = blobContainerClient.getBlobClient("ranger/audit/hdfs/hdfs/20230105/hdfs_ranger_audit_gracezhu-azure-env-master0.gracezhu.xcu2-8y8x.wl.cloudera.site.log").getBlockBlobClient();
-        System.out.println((int) blobClient.getProperties().getBlobSize());
 
         ListBlobsOptions options = new ListBlobsOptions()
                 .setMaxResultsPerPage(10)
@@ -49,44 +47,15 @@ public class GetLogsFromAzure {
                 .setPrefix("ranger/audit/hdfs/");
         Duration duration = Duration.ofMinutes(3);
 
-//        PagedIterable<BlobItem> blobs = blobContainerClient.listBlobs(options, duration);
-//        for (BlobItem blobItem : blobs) {
-//            System.out.println("hey");
-//            System.out.println("\t" + blobItem.getName());
-//        }
+        PagedIterable<BlobItem> blobs = blobContainerClient.listBlobs(options, duration);
+        for (BlobItem blobItem : blobs) {
+            System.out.println("hey");
+            System.out.println("\t" + blobItem.getName());
 
+        }
 
-
-//        System.out.println(blobContainerClient.listBlobsByHierarchy("ranger/audit/hdfs/hdfs/"));
-
-
-//
-//
-//        for (BlobItem blobItem : blobs) {
-//            System.out.println("we");
-//            System.out.println("This is the blob name: " + blobItem.getName());
-//
-//        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-
-//
-//
-//        BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
-//
+//        BlockBlobClient blobClient = blobContainerClient.getBlobClient("ranger/audit/hdfs/hdfs/20230105/hdfs_ranger_audit_gracezhu-azure-env-master0.gracezhu.xcu2-8y8x.wl.cloudera.site.log").getBlockBlobClient();
+//        System.out.println((int) blobClient.getProperties().getBlobSize());
 
     }
 
