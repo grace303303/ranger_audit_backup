@@ -43,24 +43,17 @@ public class GetLogsFromAzure {
         BlobContainerClient blobContainerClient = storageClient.getBlobContainerClient(containerName);
 
         ListBlobsOptions options = new ListBlobsOptions()
-                .setMaxResultsPerPage(10)
                 .setDetails(new BlobListDetails().setRetrieveDeletedBlobs(false).setRetrieveSnapshots(true))
                 .setPrefix("ranger/audit/hdfs/");
-        Duration duration = Duration.ofMinutes(3);
 
-        final Iterator<BlobItem> result = blobContainerClient.listBlobs(options, null).iterator();
-
-        while (result.hasNext()) {
-
-            final BlobItem blob = result.next();
-            System.out.println("\t" + blob.getName());
+        final PagedIterable<BlobItem> blobs = blobContainerClient.listBlobs(options, null);
+        for (BlobItem blob: blobs) {
+            BlockBlobClient blobClient = blobContainerClient.getBlobClient(blob.getName()).getBlockBlobClient();
+            blobClient.downloadToFile("azure/test", true);
+            System.out.println("Downloaded:" + blob.getName());
 
         }
 
-        System.out.println("end");
-
-//        BlockBlobClient blobClient = blobContainerClient.getBlobClient("ranger/audit/hdfs/hdfs/20230105/hdfs_ranger_audit_gracezhu-azure-env-master0.gracezhu.xcu2-8y8x.wl.cloudera.site.log").getBlockBlobClient();
-//        System.out.println((int) blobClient.getProperties().getBlobSize());
 
     }
 
