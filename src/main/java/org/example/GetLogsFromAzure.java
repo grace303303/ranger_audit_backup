@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Iterator;
 import java.util.Locale;
 
 public class GetLogsFromAzure {
@@ -47,12 +48,16 @@ public class GetLogsFromAzure {
                 .setPrefix("ranger/audit/hdfs/");
         Duration duration = Duration.ofMinutes(3);
 
-        PagedIterable<BlobItem> blobs = blobContainerClient.listBlobs(options, duration);
-        for (BlobItem blobItem : blobs) {
-            System.out.println("hey");
-            System.out.println("\t" + blobItem.getName());
+        final Iterator<BlobItem> result = blobContainerClient.listBlobs(options, null).iterator();
+
+        while (result.hasNext()) {
+
+            final BlobItem blob = result.next();
+            System.out.println("\t" + blob.getName());
 
         }
+
+        System.out.println("end");
 
 //        BlockBlobClient blobClient = blobContainerClient.getBlobClient("ranger/audit/hdfs/hdfs/20230105/hdfs_ranger_audit_gracezhu-azure-env-master0.gracezhu.xcu2-8y8x.wl.cloudera.site.log").getBlockBlobClient();
 //        System.out.println((int) blobClient.getProperties().getBlobSize());
