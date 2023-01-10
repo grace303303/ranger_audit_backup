@@ -59,7 +59,7 @@ public class Utilities {
 
     }
 
-    public static boolean isADate(String potentialDate) {
+    public static boolean isADateStr(String potentialDate) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
 
         try {
