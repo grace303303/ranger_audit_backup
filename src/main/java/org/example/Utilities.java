@@ -6,6 +6,8 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.security.PrivateKey;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.time.LocalDate;
@@ -56,5 +58,19 @@ public class Utilities {
         return todayDate.minusDays(daysAgo);
 
     }
+
+    public static boolean isADate(String potentialDate) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
+
+        try {
+            LocalDate.parse(potentialDate, dateFormatter);
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+
 
 }
