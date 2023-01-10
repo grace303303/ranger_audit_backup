@@ -5,11 +5,8 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import java.security.PrivateKey;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.time.LocalDate;
 
 public class Utilities {
@@ -59,7 +56,7 @@ public class Utilities {
 
     }
 
-    public static boolean isADateStr(String potentialDate) {
+    public static boolean isDateStr(String potentialDate) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
 
         try {
@@ -69,6 +66,23 @@ public class Utilities {
         }
 
         return true;
+    }
+
+    public static boolean IsLaterDate(String potentialDate, int daysAgo) {
+
+        if (!isDateStr(potentialDate)) {
+            return false;
+        }
+
+        //convert String, for example "20230112", to LocalDate.
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate newPotentialDate = LocalDate.parse(potentialDate, formatter);
+
+        LocalDate dateDaysAgo = getDaysAgoDate(daysAgo);
+
+        return newPotentialDate.equals(dateDaysAgo) || newPotentialDate.isAfter(dateDaysAgo);
+
+
     }
 
 
