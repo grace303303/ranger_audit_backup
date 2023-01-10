@@ -7,6 +7,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.security.PrivateKey;
 import java.util.ArrayList;
+import java.util.Date;
+import java.time.LocalDate;
 
 public class Utilities {
 
@@ -46,6 +48,12 @@ public class Utilities {
         }
 
         return res;
+
+    }
+
+    public static LocalDate getDaysAgoDate(int daysAgo) {
+        LocalDate todayDate = LocalDate.now();
+        return todayDate.minusDays(daysAgo);
 
     }
 
