@@ -4,10 +4,22 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.LocalDate;
+import java.util.StringJoiner;
+import java.util.stream.Stream;
+
 
 public class Utilities {
 
@@ -82,6 +94,29 @@ public class Utilities {
 
         return newPotentialDate.equals(dateDaysAgo) || newPotentialDate.isAfter(dateDaysAgo);
 
+    }
+
+    public static String readFileAsJsonList(String pathStr) throws ParseException {
+        Path filePath = Paths.get(pathStr);
+        StringBuilder contentBuilder = new StringBuilder();
+        JSONParser jsonParser = new JSONParser();
+
+        try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
+            stream.forEach(s -> {
+                try {
+                    contentBuilder.append(jsonParser.parse(s)).append(",");
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (IOException e) {
+            System.out.println("Reading the log fails.");
+        }
+
+        // Get the log content with a removal of the last comma.
+        String fileContent = "[" + contentBuilder.toString().replaceAll(",$", "") + "]";
+
+        return fileContent;
 
     }
 
