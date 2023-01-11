@@ -6,8 +6,10 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.LocalDate;
@@ -16,7 +18,7 @@ public class Utilities {
 
     public static Namespace getUserInputs(String[] args) {
 
-        ArgumentParser parser = ArgumentParsers.newFor("ranger-audits").build()
+        ArgumentParser parser = ArgumentParsers.newFor("ranger-audits-reindex").build()
                 .defaultHelp(true)
                 .description("Download ranger audits from Cloud and upload them into Solr.");
         parser.addArgument("--cloud_type")
@@ -93,6 +95,27 @@ public class Utilities {
         }
         FileUtils.deleteDirectory(directory);
         System.out.println("Deleted directory " + directory + ".");
+    }
+
+    public static String getJaasConf() {
+        String findCommand = "find /run/cloudera-scm-agent/process -name solr.keytab | tail -n 1";
+
+        try{
+            ProcessBuilder processBuilder = new ProcessBuilder( "/bin/sh", "-c", findCommand );
+            Process process = processBuilder.start();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String strCurrentLine;
+            while ((strCurrentLine = bufferedReader.readLine()) != null) {
+                if (strCurrentLine.contains("SOLR_SERVER"))
+                return strCurrentLine.replace("solr.keytab", "jaas.conf");
+            }
+
+        }catch(Exception e){
+            System.err.println(e.getMessage());
+        }
+
+        return "";
     }
 
 
