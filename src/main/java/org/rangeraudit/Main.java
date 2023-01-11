@@ -1,7 +1,6 @@
 package org.rangeraudit;
 
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.json.simple.parser.ParseException;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import static java.lang.System.exit;
 import static org.rangeraudit.UpdateSolr.updateSolr;
 import static org.rangeraudit.Utilities.*;
 
