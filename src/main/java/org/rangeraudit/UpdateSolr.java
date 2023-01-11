@@ -1,9 +1,5 @@
-package org.example;
+package org.rangeraudit;
 
-import com.google.gson.JsonObject;
-import com.sun.security.auth.callback.TextCallbackHandler;
-import okhttp3.*;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -17,24 +13,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-
-import javax.net.ssl.*;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.security.cert.CertificateException;
 import java.util.Iterator;
 import java.util.stream.Stream;
-
-import static javax.security.auth.Subject.doAs;
-
 
 public class UpdateSolr {
     private static SolrClient getSolrClient() {
@@ -71,7 +56,6 @@ public class UpdateSolr {
                         Object value = jsonObject.get(key);
                         document.addField(key, value);
                     }
-                    System.out.println(document);
                     solrClient.add(document);
                     solrClient.commit();
 
@@ -88,7 +72,8 @@ public class UpdateSolr {
             throw new RuntimeException(e);
         }
 
-    }
+        System.out.println("Inserted " + logPathStr + " into Solr.");
 
+    }
 
 }

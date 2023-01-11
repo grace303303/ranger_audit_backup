@@ -1,8 +1,7 @@
-package org.example;
+package org.rangeraudit;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.common.StorageSharedKeyCredential;
@@ -14,8 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import static org.example.Utilities.isDateStr;
-import static org.example.Utilities.isLaterDate;
+import static org.rangeraudit.Utilities.isDateStr;
+import static org.rangeraudit.Utilities.isLaterDate;
 
 public class AzureClient {
     /**

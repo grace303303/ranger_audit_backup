@@ -1,4 +1,4 @@
-package org.example;
+package org.rangeraudit;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +17,8 @@ import com.amazonaws.services.s3.model.S3Object;
 
 import java.util.List;
 
-import static org.example.Utilities.isDateStr;
-import static org.example.Utilities.isLaterDate;
+import static org.rangeraudit.Utilities.isDateStr;
+import static org.rangeraudit.Utilities.isLaterDate;
 
 public class AWSClient {
     /**
