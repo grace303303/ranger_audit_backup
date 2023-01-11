@@ -18,22 +18,30 @@ import static org.example.Utilities.isDateStr;
 import static org.example.Utilities.isLaterDate;
 
 public class AzureClient {
-
+    /**
+     *The blob storage location where the data is stored, without the prefix.
+     *(example: data@myresourcegroup.dfs.core.windows.net )
+     */
     private String storageLocation;
+    /**
+     *The Access Key of the storage account.
+     */
     private String accessKeyID;
 
     public AzureClient(String storageLocation, String accessKeyID) {
+
         this.storageLocation = storageLocation;
         this.accessKeyID = accessKeyID;
     }
 
-    public void downloadFromCloud(String localDir, int daysAgo) throws IOException {
+    public void downloadFromCloud(int daysAgo, String localDir) throws IOException {
         /**
-         * Download logs from AZURE.
+         * Download logs from AZURE Blob.
          *
-         * @param args Unused. Arguments to the program.
-         * @throws IOException      If an I/O error occurs
-         * @throws RuntimeException If the downloaded data doesn't match the uploaded data
+         * @param daysAgo How many days ago we want to start downloading the logs, for exmaple, put "0" will download
+         * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
+         * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
+         * @throws IOException If an I/O error occurs.
          */
 
         String[] blobLocationList = this.storageLocation.split("@", 2);
@@ -67,13 +75,12 @@ public class AzureClient {
             // Create /tmp_logs/yyyymmdd directory to store logs.
             File tmpFolder = new File(localDir);
             tmpFolder.mkdir();
-            File dateFolder = new File(potentialDateStr);
+            File dateFolder = new File(tmpFolder + "/" + potentialDateStr);
             dateFolder.mkdir();
-            File filePath = new File(localDir + "/" +  potentialDateStr + "/" + blob.getName());
+            File filePath = new File(dateFolder + "/" + fileName);
             filePath.createNewFile();
             blobClient.downloadToFile(filePath.toString(), true);
-            System.out.println("Downloaded " + blob.getName() + "to: " + filePath.toString());
-
+            System.out.println("Downloaded log: " + filePath);
 
         }
 

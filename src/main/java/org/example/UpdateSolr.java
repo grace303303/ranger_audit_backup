@@ -1,107 +1,94 @@
 package org.example;
 
+import com.google.gson.JsonObject;
 import com.sun.security.auth.callback.TextCallbackHandler;
 import okhttp3.*;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpClientUtil;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Krb5HttpClientBuilder;
+import org.apache.solr.client.solrj.impl.SolrHttpClientBuilder;
+import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.ModifiableSolrParams;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 
 import javax.net.ssl.*;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.cert.CertificateException;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 import static javax.security.auth.Subject.doAs;
 
 
 public class UpdateSolr {
-    public static void callWithKerberos(String data) throws IOException, LoginException, PrivilegedActionException, InterruptedException {
+    private static SolrClient getSolrClient() {
 
-        System.setProperty("java.security.auth.login.config", "../../run/cloudera-scm-agent/process/1546335586-solr-SOLR_SERVER/jaas.conf");
-        LoginContext lc = new LoginContext("Client", new TextCallbackHandler());
-        lc.login();
-        Subject subject = lc.getSubject();
-        System.out.println("Subject: " + subject);
+        System.setProperty("java.security.auth.login.config", "/run/cloudera-scm-agent/process/1546335586-solr-SOLR_SERVER/jaas.conf");
+        String urlString = "https://gracezhu-aws-env-longrunning-master0.gracezhu.xcu2-8y8x.dev.cldr.work:8985/solr/ranger_audits";
 
-        Object returnObject = Subject.doAs(subject, new PrivilegedExceptionAction<Object>() {
-            @Override
-            public Object run() throws Exception {
-                callAPI(data);
-                return null;
-            }
-        });
+        HttpSolrClient.Builder solrClientBuilder = new HttpSolrClient.Builder(urlString);
+        Krb5HttpClientBuilder krbBuilder = new Krb5HttpClientBuilder();
+        SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder.getHttpClientBuilder(java.util.Optional.empty());
+        HttpClientUtil.setHttpClientBuilder(krb5HttpClientBuilder);
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, false);
+        CloseableHttpClient httpClient = HttpClientUtil.createClient(params);
+        SolrClient client = solrClientBuilder.withHttpClient(httpClient).build();
 
-//        UserGroupInformation.loginUserFromKeytab("solr/gracezhu-aws-env-longrunning-master0.gracezhu.xcu2-8y8x.dev.cldr.work@GRACEZHU.XCU2-8Y8X.DEV.CLDR.WORK", "/var/run/cloudera-scm-agent/process/1546335586-solr-SOLR_SERVER/solr.keytab");
-//        UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-//
-//        ugi.doAs(new PrivilegedExceptionAction<Void>() {
-//            public Void run() throws Exception {
-//                callAPI(data);
-//                return null;
-//            }
-//        });
+        return client;
 
     }
 
-    private static Response callAPI(String data) throws IOException {
+    public static void updateSolr(String logPathStr) throws ParseException {
+        SolrClient solrClient = getSolrClient();
+        Path filePath = Paths.get(logPathStr);
+        JSONParser jsonParser = new JSONParser();
 
-        OkHttpClient client = getUnsafeOkHttpClient();
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(data, mediaType);
-        Request request = new Request.Builder()
-                .url("https://gracezhu-aws-env-longrunning-master0.gracezhu.xcu2-8y8x.dev.cldr.work:8985/solr/ranger_audits/update?commitWithin=1000&overwrite=true&wt=json")
-                .post(body)
-                .build();
-        Response response = client.newCall(request).execute();
+        try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
+            stream.forEach(line -> {
+                SolrInputDocument document = new SolrInputDocument();
+                try {
+                    JSONObject jsonObject = (JSONObject)jsonParser.parse(line);
 
-        System.out.println(response);
-
-        return response;
-
-    }
-
-    private static OkHttpClient getUnsafeOkHttpClient() {
-        try {
-            // Create a trust manager that does not validate certificate chains
-            final TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                        }
-
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            return new java.security.cert.X509Certificate[]{};
-                        }
+                    for(Iterator iterator = jsonObject.keySet().iterator(); iterator.hasNext();) {
+                        String key = (String) iterator.next();
+                        Object value = jsonObject.get(key);
+                        document.addField(key, value);
                     }
-            };
+                    System.out.println(document);
+                    solrClient.add(document);
+                    solrClient.commit();
 
-            // Install the all-trusting trust manager
-            final SSLContext sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            // Create an ssl socket factory with our all-trusting manager
-            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-
-            OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-            builder.hostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                } catch (SolrServerException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             });
-
-            OkHttpClient okHttpClient = builder.build();
-            return okHttpClient;
-        } catch (Exception e) {
+        } catch (IOException e) {
+            System.out.println("Reading the log fails.");
             throw new RuntimeException(e);
         }
+
     }
+
 
 }
