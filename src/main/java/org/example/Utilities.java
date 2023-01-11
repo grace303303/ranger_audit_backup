@@ -80,7 +80,7 @@ public class Utilities {
         return true;
     }
 
-    public static boolean IsLaterDate(String potentialDate, int daysAgo) {
+    public static boolean isLaterDate(String potentialDate, int daysAgo) {
 
         if (!isDateStr(potentialDate)) {
             return false;
