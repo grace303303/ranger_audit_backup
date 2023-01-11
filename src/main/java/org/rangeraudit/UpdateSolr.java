@@ -22,26 +22,8 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 
 public class UpdateSolr {
-    private static SolrClient getSolrClient() {
-
-        System.setProperty("java.security.auth.login.config", "/run/cloudera-scm-agent/process/1546335586-solr-SOLR_SERVER/jaas.conf");
-        String urlString = "https://gracezhu-aws-env-longrunning-master0.gracezhu.xcu2-8y8x.dev.cldr.work:8985/solr/ranger_audits";
-
-        HttpSolrClient.Builder solrClientBuilder = new HttpSolrClient.Builder(urlString);
-        Krb5HttpClientBuilder krbBuilder = new Krb5HttpClientBuilder();
-        SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder.getHttpClientBuilder(java.util.Optional.empty());
-        HttpClientUtil.setHttpClientBuilder(krb5HttpClientBuilder);
-        ModifiableSolrParams params = new ModifiableSolrParams();
-        params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, false);
-        CloseableHttpClient httpClient = HttpClientUtil.createClient(params);
-        SolrClient client = solrClientBuilder.withHttpClient(httpClient).build();
-
-        return client;
-
-    }
-
-    public static void updateSolr(String logPathStr) throws ParseException {
-        SolrClient solrClient = getSolrClient();
+    public static void updateSolr(String logPathStr, String jaasConfPath, String solrPath)  {
+        SolrClient solrClient = getSolrClient(jaasConfPath, solrPath);
         Path filePath = Paths.get(logPathStr);
         JSONParser jsonParser = new JSONParser();
 
@@ -56,6 +38,7 @@ public class UpdateSolr {
                         Object value = jsonObject.get(key);
                         document.addField(key, value);
                     }
+                    System.out.println(document);
                     solrClient.add(document);
                     solrClient.commit();
 
@@ -75,5 +58,24 @@ public class UpdateSolr {
         System.out.println("Inserted " + logPathStr + " into Solr.");
 
     }
+
+    private static SolrClient getSolrClient(String jaasConfPath, String solrPath) {
+
+        System.setProperty("java.security.auth.login.config", jaasConfPath);
+        String urlString = "https://" + solrPath + "/solr/ranger_audits";
+
+        HttpSolrClient.Builder solrClientBuilder = new HttpSolrClient.Builder(urlString);
+        Krb5HttpClientBuilder krbBuilder = new Krb5HttpClientBuilder();
+        SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder.getHttpClientBuilder(java.util.Optional.empty());
+        HttpClientUtil.setHttpClientBuilder(krb5HttpClientBuilder);
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, false);
+        CloseableHttpClient httpClient = HttpClientUtil.createClient(params);
+        SolrClient client = solrClientBuilder.withHttpClient(httpClient).build();
+
+        return client;
+
+    }
+
 
 }

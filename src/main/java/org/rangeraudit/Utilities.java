@@ -45,7 +45,6 @@ public class Utilities {
 
         try {
             res = parser.parseArgs(args);
-            System.out.println(res);
         } catch (ArgumentParserException e) {
             parser.handleError(e);
             System.exit(1);
