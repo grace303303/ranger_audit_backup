@@ -1,6 +1,8 @@
 package org.rangeraudit;
 
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,17 +19,19 @@ public class Main {
 
     static final String localDir = "tmp_logs";
 
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) throws IOException {
         try {
 
             // Get the jaas.conf file path
             final String jaasConfPath = getJaasConf();
             if (jaasConfPath == "") {
-                System.out.println("Failed to find Solr jaas.conf. Program exits.");
+                LOG.info("Failed to find Solr jaas.conf. Program exits.");
                 exit(0);
             }
 
-            System.out.println("Using " + jaasConfPath + " for Kerberos authentication.");
+            LOG.info("Using " + jaasConfPath + " for Kerberos authentication.");
 
             // Get user inputs.
             Namespace inputs = getUserInputs(args);
@@ -48,9 +52,14 @@ public class Main {
             }
 
             // Update Solr using SolrJ.
-            Stream<Path> filepath = Files.walk(Paths.get(localDir));
+            Path localPath = Paths.get(localDir);
+            if (!Files.exists(localPath)) {
+                LOG.error("Didn't find " + localDir + ". Program exits.");
+                exit(0);
+            }
 
-            filepath.forEach(path -> {
+            Stream<Path> filepaths = Files.walk(localPath);
+            filepaths.forEach(path -> {
                 File file = new File(path.toUri());
                 if (file.isFile() && file.getName().contains(".log")) {
                     updateSolr(path.toString(), jaasConfPath, solrPath);

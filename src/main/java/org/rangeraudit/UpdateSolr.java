@@ -12,6 +12,8 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +26,17 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 
 public class UpdateSolr {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateSolr.class);
     public static void updateSolr(String logPathStr, String jaasConfPath, String solrPath)  {
+        /**
+         * Insert each log file into Solr.
+         *
+         * @param logPathStr Path of the log file. For example "tmp_logs/20230111/hbaseRegional_ranger_audit_XYZ.log".
+         * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
+         * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
+         * @throws IOException If an I/O error occurs.
+         */
         SolrClient solrClient = getSolrClient(jaasConfPath, solrPath);
         Path filePath = Paths.get(logPathStr);
         JSONParser jsonParser = new JSONParser();
@@ -48,14 +60,14 @@ public class UpdateSolr {
                 }
             });
         } catch (IOException e) {
-            System.out.println("Reading the log fails.");
+            LOG.error("Reading the log fails.");
             throw new RuntimeException(e);
         }
 
         try {
             solrClient.add(docs);
             solrClient.commit();
-            System.out.println("Inserted " + logPathStr + " into Solr.");
+            LOG.info("Inserted " + logPathStr + " into Solr.");
         } catch (SolrServerException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

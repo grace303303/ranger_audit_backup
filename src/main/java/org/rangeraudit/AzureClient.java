@@ -8,6 +8,8 @@ import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.BlobContainerClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class AzureClient {
      *The Access Key of the storage account.
      */
     private String accessKeyID;
+    private static final Logger LOG = LoggerFactory.getLogger(AzureClient.class);
 
     public AzureClient(String storageLocation, String accessKeyID) {
 
@@ -79,7 +82,7 @@ public class AzureClient {
             File filePath = new File(dateFolder + "/" + fileName);
             filePath.createNewFile();
             blobClient.downloadToFile(filePath.toString(), true);
-            System.out.println("Downloaded log: " + filePath);
+            LOG.info("Downloaded log: " + filePath);
 
         }
 

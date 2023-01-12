@@ -14,6 +14,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -33,6 +35,8 @@ public class AWSClient {
      * AWS Access Secret Key.
      */
     private String secretKeyId;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AWSClient.class);
 
     public AWSClient(String storageLocation, String accessKeyID, String secretKeyId) {
         this.storageLocation = storageLocation;
@@ -92,7 +96,7 @@ public class AWSClient {
                 File filePath = new File(dateFolder + "/" + fileName);
                 filePath.createNewFile();
                 s3Client.getObject(new GetObjectRequest(bucketName, obj.getKey()), filePath);
-                System.out.println("Downloaded log: " + filePath);
+                LOG.info("Downloaded log: " + filePath);
 
             }
 
