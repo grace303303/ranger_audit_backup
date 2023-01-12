@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import static java.lang.System.exit;
 import static org.rangeraudit.UpdateSolr.updateSolr;
 import static org.rangeraudit.Utilities.*;
 
@@ -23,7 +24,7 @@ public class Main {
             final String jaasConfPath = getJaasConf();
             if (jaasConfPath == "") {
                 System.out.println("Failed to find Solr jaas.conf. Program exits.");
-//                exit(0);
+                exit(0);
             }
 
             System.out.println("Using " + jaasConfPath + " for Kerberos authentication.");

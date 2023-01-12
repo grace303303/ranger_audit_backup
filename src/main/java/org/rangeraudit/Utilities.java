@@ -99,18 +99,19 @@ public class Utilities {
     public static String getJaasConf() {
         String findCommand = "find /run/cloudera-scm-agent/process -name solr.keytab | tail -n 1";
 
-        try{
-            ProcessBuilder processBuilder = new ProcessBuilder( "/bin/sh", "-c", findCommand );
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", findCommand);
             Process process = processBuilder.start();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             String strCurrentLine;
             while ((strCurrentLine = bufferedReader.readLine()) != null) {
-                if (strCurrentLine.contains("SOLR_SERVER"))
-                return strCurrentLine.replace("solr.keytab", "jaas.conf");
+                if (strCurrentLine.contains("SOLR_SERVER")) {
+                    return strCurrentLine.replace("solr.keytab", "jaas.conf");
+                }
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
 
