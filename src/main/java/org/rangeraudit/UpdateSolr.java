@@ -18,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
@@ -26,6 +28,7 @@ public class UpdateSolr {
         SolrClient solrClient = getSolrClient(jaasConfPath, solrPath);
         Path filePath = Paths.get(logPathStr);
         JSONParser jsonParser = new JSONParser();
+        Collection<SolrInputDocument> docs = new ArrayList<>();
 
         try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
             stream.forEach(line -> {
@@ -38,14 +41,9 @@ public class UpdateSolr {
                         Object value = jsonObject.get(key);
                         document.addField(key, value);
                     }
-                    solrClient.add(document);
-                    solrClient.commit();
+                    docs.add(document);
 
                 } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                } catch (SolrServerException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -54,7 +52,15 @@ public class UpdateSolr {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Inserted " + logPathStr + " into Solr.");
+        try {
+            solrClient.add(docs);
+            solrClient.commit();
+            System.out.println("Inserted " + logPathStr + " into Solr.");
+        } catch (SolrServerException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
