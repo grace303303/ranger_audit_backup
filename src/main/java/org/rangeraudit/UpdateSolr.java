@@ -38,7 +38,6 @@ public class UpdateSolr {
                         Object value = jsonObject.get(key);
                         document.addField(key, value);
                     }
-                    System.out.println(document);
                     solrClient.add(document);
                     solrClient.commit();
 
