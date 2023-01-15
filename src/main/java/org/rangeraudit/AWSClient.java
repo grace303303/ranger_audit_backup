@@ -1,22 +1,20 @@
 package org.rangeraudit;
 
-import java.io.File;
-import java.io.IOException;
-
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,20 +22,19 @@ import static org.rangeraudit.Utilities.isDateStr;
 import static org.rangeraudit.Utilities.isLaterDate;
 
 public class AWSClient {
+    private static final Logger LOG = LoggerFactory.getLogger(AWSClient.class);
     /**
      * The s3 storage location where the data is stored, without the prefix. (example: my-bucket-name/my-env-name/data)
      */
-    private String storageLocation;
+    private final String storageLocation;
     /**
      * AWS Access Key ID.
      */
-    private String accessKeyID;
+    private final String accessKeyID;
     /**
      * AWS Access Secret Key.
      */
-    private String secretKeyId;
-
-    private static final Logger LOG = LoggerFactory.getLogger(AWSClient.class);
+    private final String secretKeyId;
 
     public AWSClient(String storageLocation, String accessKeyID, String secretKeyId) {
         this.storageLocation = storageLocation;
