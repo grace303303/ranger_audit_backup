@@ -26,20 +26,20 @@ public class Main {
 
             // Get the jaas.conf file path
             final String jaasConfPath = getJaasConf();
-            if (jaasConfPath == "") {
+            if (jaasConfPath.equals("")) {
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
-                exit(0);
+                exit(1);
             }
 
             LOG.info("Using " + jaasConfPath + " for Kerberos authentication.");
 
             // Get user inputs.
-            Namespace inputs = getUserInputs(args);
-            String cloudType = inputs.get("cloud_type");
-            String storageLocation = inputs.get("storage_location");
-            String accessKeyId = inputs.get("access_key_id");
-            Integer daysAgo = inputs.get("days_ago");
-            String solrPath = inputs.get("solr_path");
+            final Namespace inputs = getUserInputs(args);
+            final String cloudType = inputs.get("cloud_type");
+            final String storageLocation = inputs.get("storage_location");
+            final String accessKeyId = inputs.get("access_key_id");
+            final Integer daysAgo = inputs.get("days_ago");
+            final String solrPath = inputs.get("solr_path");
 
             // Download logs.
             if (cloudType.equalsIgnoreCase("aws")) {
@@ -55,7 +55,7 @@ public class Main {
             Path localPath = Paths.get(localDir);
             if (!Files.exists(localPath)) {
                 LOG.error("Didn't find " + localDir + ". Program exits.");
-                exit(0);
+                exit(1);
             }
 
             Stream<Path> filepaths = Files.walk(localPath);

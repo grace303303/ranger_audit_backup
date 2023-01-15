@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Objects;
 
 import static org.rangeraudit.Utilities.isDateStr;
 import static org.rangeraudit.Utilities.isLaterDate;
@@ -70,7 +71,7 @@ public class AzureClient {
                 continue;
             }
 
-            if (fileName == "") {
+            if (Objects.equals(fileName, "")) {
                 continue;
             }
 
@@ -85,9 +86,5 @@ public class AzureClient {
             LOG.info("Downloaded log: " + filePath);
 
         }
-
-
     }
-
-
 }

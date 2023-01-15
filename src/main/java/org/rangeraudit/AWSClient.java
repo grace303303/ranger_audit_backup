@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.rangeraudit.Utilities.isDateStr;
 import static org.rangeraudit.Utilities.isLaterDate;
@@ -60,8 +61,6 @@ public class AWSClient {
         Regions clientRegion = Regions.DEFAULT_REGION;
         BasicAWSCredentials credentials = new BasicAWSCredentials(this.accessKeyID, this.secretKeyId);
 
-        S3Object fullObject = null, objectPortion = null, headerOverrideObject = null;
-
         try {
             AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                     .withRegion(clientRegion)
@@ -84,7 +83,7 @@ public class AWSClient {
                     continue;
                 }
 
-                if (fileName == "") {
+                if (Objects.equals(fileName, "")) {
                     continue;
                 }
 
@@ -104,21 +103,12 @@ public class AWSClient {
             // The call was transmitted successfully, but Amazon S3 couldn't process
             // it, so it returned an error response.
             e.printStackTrace();
+            throw new IOException(e);
         } catch (SdkClientException e) {
             // Amazon S3 couldn't be contacted for a response, or the client
             // couldn't parse the response from Amazon S3.
             e.printStackTrace();
-        } finally {
-            // To ensure that the network connection doesn't remain open, close any open input streams.
-            if (fullObject != null) {
-                fullObject.close();
-            }
-            if (objectPortion != null) {
-                objectPortion.close();
-            }
-            if (headerOverrideObject != null) {
-                headerOverrideObject.close();
-            }
+            throw new IOException(e);
         }
 
     }
