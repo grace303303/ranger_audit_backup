@@ -28,7 +28,8 @@ import java.util.stream.Stream;
 public class UpdateSolr {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSolr.class);
-    public static void updateSolr(String logPathStr, String jaasConfPath, String solrPath)  {
+
+    public static void updateSolr(String logPathStr, String jaasConfPath, String solrPath) {
         /**
          * Insert each log file into Solr.
          *
@@ -42,25 +43,29 @@ public class UpdateSolr {
         JSONParser jsonParser = new JSONParser();
         Collection<SolrInputDocument> docs = new ArrayList<>();
 
-        try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
+        try {
+            Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8);
             stream.forEach(line -> {
                 SolrInputDocument document = new SolrInputDocument();
+
+                JSONObject jsonObject;
                 try {
-                    JSONObject jsonObject = (JSONObject)jsonParser.parse(line);
-
-                    for(Iterator iterator = jsonObject.keySet().iterator(); iterator.hasNext();) {
-                        String key = (String) iterator.next();
-                        Object value = jsonObject.get(key);
-                        document.addField(key, value);
-                    }
-                    docs.add(document);
-
+                    jsonObject = (JSONObject) jsonParser.parse(line);
                 } catch (ParseException e) {
+                    LOG.error("Parsing Json failed.");
                     throw new RuntimeException(e);
                 }
+
+                for (Iterator iterator = jsonObject.keySet().iterator(); iterator.hasNext(); ) {
+                    String key = (String) iterator.next();
+                    Object value = jsonObject.get(key);
+                    document.addField(key, value);
+                }
+                docs.add(document);
+
             });
         } catch (IOException e) {
-            LOG.error("Reading the log fails.");
+            LOG.error("Reading the log failed.");
             throw new RuntimeException(e);
         }
 
