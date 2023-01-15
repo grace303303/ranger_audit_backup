@@ -65,13 +65,9 @@ public class Main {
                     updateSolr(path.toString(), jaasConfPath, solrPath);
                 }
             });
-
         } finally {
             // Delete "/tmp_logs".
             deleteDirectory(new File(localDir));
-
         }
-
     }
-
 }

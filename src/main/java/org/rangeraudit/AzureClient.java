@@ -1,13 +1,13 @@
 package org.rangeraudit;
 
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.common.StorageSharedKeyCredential;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.blob.BlobContainerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,16 +20,16 @@ import static org.rangeraudit.Utilities.isDateStr;
 import static org.rangeraudit.Utilities.isLaterDate;
 
 public class AzureClient {
-    /**
-     *The blob storage location where the data is stored, without the prefix.
-     *(example: data@myresourcegroup.dfs.core.windows.net )
-     */
-    private String storageLocation;
-    /**
-     *The Access Key of the storage account.
-     */
-    private String accessKeyID;
     private static final Logger LOG = LoggerFactory.getLogger(AzureClient.class);
+    /**
+     * The blob storage location where the data is stored, without the prefix.
+     * (example: data@myresourcegroup.dfs.core.windows.net )
+     */
+    private final String storageLocation;
+    /**
+     * The Access Key of the storage account.
+     */
+    private final String accessKeyID;
 
     public AzureClient(String storageLocation, String accessKeyID) {
 
@@ -61,7 +61,7 @@ public class AzureClient {
 
         final PagedIterable<BlobItem> blobs = blobContainerClient.listBlobs(options, null);
 
-        for (BlobItem blob: blobs) {
+        for (BlobItem blob : blobs) {
             BlockBlobClient blobClient = blobContainerClient.getBlobClient(blob.getName()).getBlockBlobClient();
             String[] blobPathList = blob.getName().split("/");
             String potentialDateStr = blobPathList[blobPathList.length - 2];
