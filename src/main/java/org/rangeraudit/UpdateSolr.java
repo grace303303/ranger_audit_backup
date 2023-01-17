@@ -71,7 +71,6 @@ public class UpdateSolr {
 
         try {
             solrClient.add(docs);
-            solrClient.commit();
             LOG.info("Inserted " + logPathStr + " into Solr.");
         } catch (SolrServerException e) {
             throw new RuntimeException(e);
@@ -82,6 +81,12 @@ public class UpdateSolr {
     }
 
     private static SolrClient getSolrClient(String jaasConfPath, String solrPath) {
+        /**
+         * Get the SolrClient with Kerberos authentication..
+         *
+         * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
+         * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
+         */
 
         System.setProperty("java.security.auth.login.config", jaasConfPath);
         String urlString = "https://" + solrPath + "/solr/ranger_audits";
