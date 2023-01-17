@@ -15,15 +15,14 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.stream.Stream;
 
 public class UpdateSolr {
 
@@ -39,42 +38,50 @@ public class UpdateSolr {
          * @throws IOException If an I/O error occurs.
          */
         SolrClient solrClient = getSolrClient(jaasConfPath, solrPath);
-        Path filePath = Paths.get(logPathStr);
         JSONParser jsonParser = new JSONParser();
-        Collection<SolrInputDocument> docs = new ArrayList<>();
 
         try {
-            Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8);
-            stream.forEach(line -> {
-                SolrInputDocument document = new SolrInputDocument();
+            // Read the log file line by line to avoid the file being too large issue.
+            BufferedReader reader = new BufferedReader(new FileReader(logPathStr));
+            String line = reader.readLine();
+            // Number of Solr documents to put in each batch sent to Solr.
+            final Integer documentsPerBatch = 1000;
 
-                JSONObject jsonObject;
-                try {
-                    jsonObject = (JSONObject) jsonParser.parse(line);
-                } catch (ParseException e) {
-                    LOG.error("Parsing Json failed.");
-                    throw new RuntimeException(e);
+            while (line != null) {
+                ArrayList<SolrInputDocument> batch = new ArrayList<>();
+                Integer counter = 0;
+
+                while (line != null && counter < documentsPerBatch) {
+                    SolrInputDocument document = new SolrInputDocument();
+                    JSONObject jsonObject;
+                    try {
+                        jsonObject = (JSONObject) jsonParser.parse(line);
+                    } catch (ParseException e) {
+                        LOG.error("Parsing Json failed.");
+                        throw new RuntimeException(e);
+                    }
+
+                    for (Iterator iterator = jsonObject.keySet().iterator(); iterator.hasNext(); ) {
+                        String key = (String) iterator.next();
+                        Object value = jsonObject.get(key);
+                        document.addField(key, value);
+                    }
+                    // Add the document/data from a json object into the batch. Solr commits will happen automatically.
+                    batch.add(document);
+                    // Read next line.
+                    counter += 1;
+                    line = reader.readLine();
                 }
 
-                for (Iterator iterator = jsonObject.keySet().iterator(); iterator.hasNext(); ) {
-                    String key = (String) iterator.next();
-                    Object value = jsonObject.get(key);
-                    document.addField(key, value);
-                }
-                docs.add(document);
+                    //Add the batch (a list with maximum documentsPerBatch of documents) into the client.
+                    solrClient.add(batch);
+            }
 
-            });
-        } catch (IOException e) {
-            LOG.error("Reading the log failed.");
-            throw new RuntimeException(e);
-        }
-
-        try {
-            solrClient.add(docs);
             LOG.info("Inserted " + logPathStr + " into Solr.");
-        } catch (SolrServerException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+            reader.close();
+
+        } catch (IOException | SolrServerException e) {
+            LOG.error("Reading the log file " + logPathStr + " failed.");
             throw new RuntimeException(e);
         }
 
