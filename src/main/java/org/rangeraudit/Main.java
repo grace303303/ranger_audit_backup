@@ -43,10 +43,14 @@ public class Main {
             final String accessKeyId = inputs.get("access_key_id");
             final Integer daysAgo = inputs.get("days_ago");
             final String solrPath = inputs.get("solr_path");
+            Integer totalThreads = inputs.get("threads");
 
             // Download logs.
             if (cloudType.equalsIgnoreCase("aws")) {
                 String secretAccessKey = inputs.get("secret_access_key");
+                if (secretAccessKey == null) {
+                    LOG.error("Please provide AWS secret access key.");
+                }
                 AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey);
                 awsClient.downloadFromCloud(daysAgo, localDir);
             } else {
@@ -61,7 +65,11 @@ public class Main {
                 exit(1);
             }
 
-            int totalThreads = 3;
+            if (totalThreads == null) {
+                totalThreads = 4;
+            }
+
+            LOG.info("Start insertion into Solr using " + totalThreads + " threads.");
             ExecutorService executorService = Executors.newFixedThreadPool(totalThreads);
 
             Stream<Path> filePaths = Files.walk(localPath);
