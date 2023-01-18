@@ -18,15 +18,12 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
-public class UpdateSolr {
+public class UpdateSolrWithEachLog {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateSolr.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateSolrWithEachLog.class);
 
     public static void updateSolr(String logPathStr, String jaasConfPath, String solrPath) {
         /**
@@ -81,7 +78,7 @@ public class UpdateSolr {
             reader.close();
 
         } catch (IOException | SolrServerException e) {
-            LOG.error("Reading the log file " + logPathStr + " failed.");
+            LOG.error("Inserting the log file " + logPathStr + " failed.");
             throw new RuntimeException(e);
         }
 

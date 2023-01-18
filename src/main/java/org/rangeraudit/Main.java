@@ -9,11 +9,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import static java.lang.System.exit;
-import static org.rangeraudit.UpdateSolr.updateSolr;
 import static org.rangeraudit.Utilities.*;
+
 
 public class Main {
 
@@ -58,13 +61,21 @@ public class Main {
                 exit(1);
             }
 
-            Stream<Path> filepaths = Files.walk(localPath);
-            filepaths.forEach(path -> {
+            int totalThreads = 3;
+            ExecutorService executorService = Executors.newFixedThreadPool(totalThreads);
+
+            Stream<Path> filePaths = Files.walk(localPath);
+            filePaths.forEach(path -> {
                 File file = new File(path.toUri());
                 if (file.isFile() && file.getName().contains(".log")) {
-                    updateSolr(path.toString(), jaasConfPath, solrPath);
+                    Runnable logRunnable = new LogRunnable(jaasConfPath, solrPath, path.toString());
+                    executorService.execute(logRunnable);
                 }
             });
+
+            executorService.shutdown();
+            while(!executorService.isTerminated()) {}
+            LOG.info("Program completed!");
         } finally {
             // Delete "/tmp_logs".
             deleteDirectory(new File(localDir));
