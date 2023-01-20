@@ -78,7 +78,7 @@ public class UpdateSolrWithEachLog {
             reader.close();
 
         } catch (IOException | SolrServerException e) {
-            LOG.error("Inserting the log file " + logPathStr + " failed.");
+            LOG.error("Failed at inserting log: " + logPathStr);
             throw new RuntimeException(e);
         }
 

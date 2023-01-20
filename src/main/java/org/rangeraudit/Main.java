@@ -60,12 +60,13 @@ public class Main {
             // Update Solr using SolrJ.
             Path localPath = Paths.get(localDir);
             if (!Files.exists(localPath)) {
-                LOG.error("Didn't find " + localDir + ". Program exits.");
+                LOG.error("Failed to find " + localDir + ". Program exits.");
                 exit(1);
             }
 
             if (totalThreads == null) {
-                totalThreads = 4;
+            // Thread number is defaulted to be 1.
+                totalThreads = 1;
             }
 
             LOG.info("Start insertion into Solr using " + totalThreads + " threads.");

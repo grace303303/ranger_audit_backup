@@ -1,7 +1,5 @@
 package org.rangeraudit;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
@@ -58,57 +56,51 @@ public class AWSClient {
         Regions clientRegion = Regions.DEFAULT_REGION;
         BasicAWSCredentials credentials = new BasicAWSCredentials(this.accessKeyID, this.secretKeyId);
 
-        try {
-            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                    .withRegion(clientRegion)
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .build();
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                .withRegion(clientRegion)
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .build();
 
-            ObjectListing listing = s3Client.listObjects(bucketName, s3Path);
-            List<S3ObjectSummary> summaries = listing.getObjectSummaries();
+        ObjectListing listing = s3Client.listObjects(bucketName, s3Path);
+        List<S3ObjectSummary> summaries = listing.getObjectSummaries();
 
-            for (S3ObjectSummary obj : summaries) {
-                if (!obj.getKey().contains("/ranger/audit")) {
-                    continue;
-                }
-
-                String[] s3PathList = obj.getKey().split("/");
-                String potentialDateStr = s3PathList[s3PathList.length - 2];
-                String fileName = s3PathList[s3PathList.length - 1];
-
-                if (!isDateStr(potentialDateStr) || !isLaterDate(potentialDateStr, daysAgo)) {
-                    continue;
-                }
-
-                if (Objects.equals(fileName, "")) {
-                    continue;
-                }
-
-                // Create /tmp_logs/yyyymmdd directory to store logs.
-                File tmpFolder = new File(localDir);
-                tmpFolder.mkdir();
-                File dateFolder = new File(tmpFolder + "/" + potentialDateStr);
-                dateFolder.mkdir();
-                File filePath = new File(dateFolder + "/" + fileName);
-                filePath.createNewFile();
-                s3Client.getObject(new GetObjectRequest(bucketName, obj.getKey()), filePath);
-                LOG.info("Downloaded log: " + filePath);
-
+        for (S3ObjectSummary obj : summaries) {
+            if (!obj.getKey().contains("/ranger/audit")) {
+                continue;
             }
 
-        } catch (AmazonServiceException e) {
-            // The call was transmitted successfully, but Amazon S3 couldn't process
-            // it, so it returned an error response.
-            e.printStackTrace();
-            throw new IOException(e);
-        } catch (SdkClientException e) {
-            // Amazon S3 couldn't be contacted for a response, or the client
-            // couldn't parse the response from Amazon S3.
-            e.printStackTrace();
-            throw new IOException(e);
+            String[] s3PathList = obj.getKey().split("/");
+            String potentialDateStr = s3PathList[s3PathList.length - 2];
+            String fileName = s3PathList[s3PathList.length - 1];
+
+            if (!isDateStr(potentialDateStr) || !isLaterDate(potentialDateStr, daysAgo)) {
+                continue;
+            }
+
+            if (Objects.equals(fileName, "")) {
+                continue;
+            }
+
+            // Create /tmp_logs/yyyymmdd directory to store logs.
+            File tmpFolder = new File(localDir);
+            tmpFolder.mkdir();
+            File dateFolder = new File(tmpFolder + "/" + potentialDateStr);
+            dateFolder.mkdir();
+            File filePath = new File(dateFolder + "/" + fileName);
+            filePath.createNewFile();
+            try {
+                s3Client.getObject(new GetObjectRequest(bucketName, obj.getKey()), filePath);
+                LOG.info("Downloaded log: " + filePath);
+            } catch (Exception e) {
+                LOG.info("Failed at downloading: " + filePath);
+                e.printStackTrace();
+            }
+
         }
 
     }
 
-
 }
+
+
+

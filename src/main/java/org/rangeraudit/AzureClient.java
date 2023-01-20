@@ -82,9 +82,13 @@ public class AzureClient {
             dateFolder.mkdir();
             File filePath = new File(dateFolder + "/" + fileName);
             filePath.createNewFile();
-            blobClient.downloadToFile(filePath.toString(), true);
-            LOG.info("Downloaded log: " + filePath);
-
+            try {
+                blobClient.downloadToFile(filePath.toString(), true);
+                LOG.info("Downloaded log: " + filePath);
+            } catch (Exception e) {
+                LOG.info("Failed at downloading: " + filePath);
+                e.printStackTrace();
+            }
         }
     }
 }

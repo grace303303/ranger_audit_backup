@@ -21,7 +21,6 @@ public class LogRunnable implements Runnable {
 
     @Override
     public void run() {
-        LOG.info("Start inserting:" + logPath + " at thread " + Thread.currentThread().getName());
         updateSolr(logPath, jaasConfPath, solrPath);
     }
 }
