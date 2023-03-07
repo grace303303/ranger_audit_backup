@@ -133,7 +133,7 @@ public class Utilities {
 
             String strCurrentLine;
             while ((strCurrentLine = bufferedReader.readLine()) != null) {
-                if (strCurrentLine.contains("SOLR_SERVER")) {
+                if (strCurrentLine.contains("solr.keytab")) {
                     return strCurrentLine.replace("solr.keytab", "jaas.conf");
                 }
             }

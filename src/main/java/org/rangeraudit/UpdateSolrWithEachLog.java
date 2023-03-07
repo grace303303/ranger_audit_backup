@@ -42,12 +42,13 @@ public class UpdateSolrWithEachLog {
             BufferedReader reader = new BufferedReader(new FileReader(logPathStr));
             String line = reader.readLine();
             // Number of Solr documents to put in each batch sent to Solr.
-            final Integer documentsPerBatch = 1000;
+            final Integer documentsPerBatch = 50000;
 
             while (line != null) {
                 ArrayList<SolrInputDocument> batch = new ArrayList<>();
                 Integer counter = 0;
 
+                long startTime1 = System.currentTimeMillis();
                 while (line != null && counter < documentsPerBatch) {
                     SolrInputDocument document = new SolrInputDocument();
                     JSONObject jsonObject;
@@ -69,9 +70,12 @@ public class UpdateSolrWithEachLog {
                     counter += 1;
                     line = reader.readLine();
                 }
+                LOG.info("Processing the 50000 objects using {} ms", System.currentTimeMillis() - startTime1);
 
-                    //Add the batch (a list with maximum documentsPerBatch of documents) into the client.
-                    solrClient.add(batch);
+                long startTime2 = System.currentTimeMillis();
+                //Add the batch (a list with maximum documentsPerBatch of documents) into the client.
+                solrClient.add(batch);
+                LOG.info("Adding the batch took {} ms", System.currentTimeMillis() - startTime2);
             }
 
             LOG.info("Inserted " + logPathStr + " into Solr.");
