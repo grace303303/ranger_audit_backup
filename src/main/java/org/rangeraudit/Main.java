@@ -83,32 +83,6 @@ public class Main {
             while (!executorService.isTerminated()) {
             }
             LOG.info("Program completed!");
-//
-//            // Update Solr using SolrJ.
-//            Path localPath = Paths.get(localDir);
-//            if (!Files.exists(localPath)) {
-//                LOG.error("Failed to find " + localDir + ". Program exits.");
-//                exit(1);
-//            }
-//
-//            if (totalThreads == null) {
-//            // Thread number is defaulted to be 1.
-//                totalThreads = 1;
-//            }
-//
-//            LOG.info("Start insertion into Solr using " + totalThreads + " threads.");
-//            ExecutorService executorService = Executors.newFixedThreadPool(totalThreads);
-//
-//            Stream<Path> filePaths = Files.walk(localPath);
-//            filePaths.forEach(path -> {
-//                File file = new File(path.toUri());
-//                if (file.isFile() && file.getName().contains(".log")) {
-//                    Runnable logRunnable = new LogRunnable(jaasConfPath, solrPath, path.toString());
-//                    executorService.execute(logRunnable);
-//                }
-//            });
-//
-
         } finally {
             // Delete "/tmp_logs".
             deleteDirectory(new File(localDir));

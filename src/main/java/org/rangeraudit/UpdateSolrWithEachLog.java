@@ -25,7 +25,7 @@ public class UpdateSolrWithEachLog {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSolrWithEachLog.class);
 
-    public static void updateSolr(String logPathStr, String jaasConfPath, String solrPath) {
+    public static void updateSolr(String localLogPath, String jaasConfPath, String solrPath) {
         /**
          * Insert each log file into Solr.
          *
@@ -39,7 +39,7 @@ public class UpdateSolrWithEachLog {
 
         try {
             // Read the log file line by line to avoid the file being too large issue.
-            BufferedReader reader = new BufferedReader(new FileReader(logPathStr));
+            BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
             String line = reader.readLine();
             // Number of Solr documents to put in each batch sent to Solr.
             final Integer documentsPerBatch = 1000;
@@ -74,11 +74,11 @@ public class UpdateSolrWithEachLog {
                     solrClient.add(batch);
             }
 
-            LOG.info("Inserted " + logPathStr + " into Solr.");
+            LOG.info("Inserted " + localLogPath + " into Solr.");
             reader.close();
 
         } catch (IOException | SolrServerException e) {
-            LOG.error("Failed at inserting log: " + logPathStr);
+            LOG.error("Failed at inserting log: " + localLogPath);
             throw new RuntimeException(e);
         }
 

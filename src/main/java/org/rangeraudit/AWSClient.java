@@ -89,7 +89,7 @@ public class AWSClient implements CloudClient {
     }
 
     @Override
-    public void downloadFromCloud(String s3logPath, String localDir) throws IOException {
+    public String downloadFromCloud(String s3logPath, String localDir) throws IOException {
         /**
          * Download logs from AWS S3.
          *
@@ -99,6 +99,7 @@ public class AWSClient implements CloudClient {
          * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
          * @throws IOException If an I/O error occurs.
          */
+        File localFilePath;
         String[] s3LocationList = this.storageLocation.split("/", 2);
         String bucketName = s3LocationList[0];
 
@@ -119,7 +120,7 @@ public class AWSClient implements CloudClient {
         tmpFolder.mkdir();
         File dateFolder = new File(tmpFolder + "/" + potentialDateStr);
         dateFolder.mkdir();
-        File localFilePath = new File(dateFolder + "/" + fileName);
+        localFilePath = new File(dateFolder + "/" + fileName);
         localFilePath.createNewFile();
         try {
             s3Client.getObject(new GetObjectRequest(bucketName, s3logPath), localFilePath);
@@ -127,7 +128,9 @@ public class AWSClient implements CloudClient {
         } catch (Exception e) {
             LOG.info("Failed at downloading: " + s3logPath);
             e.printStackTrace();
+            return null;
         }
+        return localFilePath.toString();
     }
 }
 

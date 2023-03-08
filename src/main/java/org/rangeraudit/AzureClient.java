@@ -82,7 +82,7 @@ public class AzureClient implements CloudClient {
     }
 
     @Override
-    public void downloadFromCloud(String blobLogPath, String localDir) throws IOException {
+    public String downloadFromCloud(String blobLogPath, String localDir) throws IOException {
         /**
          * Download logs from AZURE Blob.
          *
@@ -90,7 +90,7 @@ public class AzureClient implements CloudClient {
          * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
          * @throws IOException If an I/O error occurs.
          */
-
+        File localFilePath;
         String[] blobLocationList = this.storageLocation.split("@", 2);
         String containerName = blobLocationList[0];
         String accountName = blobLocationList[1].split("\\.")[0];
@@ -111,14 +111,15 @@ public class AzureClient implements CloudClient {
         tmpFolder.mkdir();
         File dateFolder = new File(tmpFolder + "/" + potentialDateStr);
         dateFolder.mkdir();
-        File filePath = new File(dateFolder + "/" + fileName);
-        filePath.createNewFile();
+        localFilePath = new File(dateFolder + "/" + fileName);
+        localFilePath.createNewFile();
         try {
-            blobClient.downloadToFile(filePath.toString(), true);
-            LOG.info("Downloaded log: " + filePath);
+            blobClient.downloadToFile(localFilePath.toString(), true);
+            LOG.info("Downloaded log: " + localFilePath);
         } catch (Exception e) {
-            LOG.info("Failed at downloading: " + filePath);
+            LOG.info("Failed at downloading: " + blobLogPath);
             e.printStackTrace();
         }
+        return localFilePath.toString();
     }
 }

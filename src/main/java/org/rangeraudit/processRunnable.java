@@ -1,6 +1,12 @@
 package org.rangeraudit;
 
+import static java.lang.System.exit;
+import static org.rangeraudit.UpdateSolrWithEachLog.updateSolr;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +17,14 @@ public class processRunnable implements Runnable {
 
     private final String jaasConfPath;
     private final String solrPath;
-    private final String logPath;
+    private final String cloudLogPath;
     private final String localDir;
     private final CloudClient cloudClient;
 
-    public processRunnable(String logPath, String localDir, CloudClient cloudClient, String jaasConfPath, String solrPath) {
+    public processRunnable(String cloudLogPath, String localDir, CloudClient cloudClient, String jaasConfPath, String solrPath) {
         this.jaasConfPath = jaasConfPath;
         this.solrPath = solrPath;
-        this.logPath = logPath;
+        this.cloudLogPath = cloudLogPath;
         this.localDir = localDir;
         this.cloudClient = cloudClient;
     }
@@ -26,10 +32,13 @@ public class processRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            this.cloudClient.downloadFromCloud(logPath, localDir);
+            String localLogPath = cloudClient.downloadFromCloud(cloudLogPath, localDir);
+            if (localLogPath != null && Files.exists(Paths.get(localLogPath))) {
+                updateSolr(localLogPath, jaasConfPath, solrPath);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-//        updateSolr(logPath, jaasConfPath, solrPath);
+
     }
 }
