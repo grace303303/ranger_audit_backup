@@ -42,7 +42,7 @@ public class UpdateSolrWithEachLog {
             BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
             String line = reader.readLine();
             // Number of Solr documents to put in each batch sent to Solr.
-            final Integer documentsPerBatch = 1000;
+            final Integer documentsPerBatch = 50000;
 
             while (line != null) {
                 ArrayList<SolrInputDocument> batch = new ArrayList<>();

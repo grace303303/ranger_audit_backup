@@ -7,13 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 
 import static java.lang.System.exit;
 import static org.rangeraudit.Utilities.*;
@@ -65,7 +61,7 @@ public class Main {
 
                 LOG.info("Start the download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
-                            Runnable logRunnable = new processRunnable(validLogPath.toString(), LOCAL_DIR, awsClient, jaasConfPath, solrPath);
+                            Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, awsClient, jaasConfPath, solrPath);
                             executorService.execute(logRunnable);
                         }
                 );
@@ -75,7 +71,7 @@ public class Main {
 
                 LOG.info("Start the download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
-                    Runnable logRunnable = new processRunnable(validLogPath.toString(), LOCAL_DIR, azureClient, jaasConfPath, solrPath);
+                    Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, azureClient, jaasConfPath, solrPath);
                     executorService.execute(logRunnable);
                 });
             }

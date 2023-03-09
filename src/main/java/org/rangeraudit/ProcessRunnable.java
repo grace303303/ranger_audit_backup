@@ -1,19 +1,17 @@
 package org.rangeraudit;
 
-import static java.lang.System.exit;
 import static org.rangeraudit.UpdateSolrWithEachLog.updateSolr;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class processRunnable implements Runnable {
+public class ProcessRunnable implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(processRunnable.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessRunnable.class);
 
     private final String jaasConfPath;
     private final String solrPath;
@@ -21,7 +19,7 @@ public class processRunnable implements Runnable {
     private final String localDir;
     private final CloudClient cloudClient;
 
-    public processRunnable(String cloudLogPath, String localDir, CloudClient cloudClient, String jaasConfPath, String solrPath) {
+    public ProcessRunnable(String cloudLogPath, String localDir, CloudClient cloudClient, String jaasConfPath, String solrPath) {
         this.jaasConfPath = jaasConfPath;
         this.solrPath = solrPath;
         this.cloudLogPath = cloudLogPath;
