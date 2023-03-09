@@ -59,7 +59,7 @@ public class Main {
                 AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey);
                 ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(daysAgo);
 
-                LOG.info("Start the download, upload, and deletion process using " + totalThreads + " threads.");
+                LOG.info("Start the AWS download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
                             Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, awsClient, jaasConfPath, solrPath);
                             executorService.execute(logRunnable);
@@ -69,7 +69,7 @@ public class Main {
                 AzureClient azureClient = new AzureClient(storageLocation, accessKeyId);
                 ArrayList allValidLogPaths = azureClient.getAllValidLogPaths(daysAgo);
 
-                LOG.info("Start the download, upload, and deletion process using " + totalThreads + " threads.");
+                LOG.info("Start the AZURE download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
                     Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, azureClient, jaasConfPath, solrPath);
                     executorService.execute(logRunnable);

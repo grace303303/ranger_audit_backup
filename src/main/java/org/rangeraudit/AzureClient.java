@@ -82,7 +82,7 @@ public class AzureClient implements CloudClient {
     }
 
     @Override
-    public String downloadFromCloud(String blobLogPath, String localDir) throws IOException {
+    public File downloadFromCloud(String blobLogPath, String localDir) throws IOException {
         /**
          * Download logs from AZURE Blob.
          *
@@ -120,6 +120,6 @@ public class AzureClient implements CloudClient {
             LOG.info("Failed at downloading: " + blobLogPath);
             e.printStackTrace();
         }
-        return localFilePath.toString();
+        return localFilePath;
     }
 }

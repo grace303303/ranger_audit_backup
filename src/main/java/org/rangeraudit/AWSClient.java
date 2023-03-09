@@ -89,7 +89,7 @@ public class AWSClient implements CloudClient {
     }
 
     @Override
-    public String downloadFromCloud(String s3logPath, String localDir) throws IOException {
+    public File downloadFromCloud(String s3logPath, String localDir) throws IOException {
         /**
          * Download logs from AWS S3.
          *
@@ -130,7 +130,7 @@ public class AWSClient implements CloudClient {
             e.printStackTrace();
             return null;
         }
-        return localFilePath.toString();
+        return localFilePath;
     }
 }
 

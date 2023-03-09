@@ -1,7 +1,9 @@
 package org.rangeraudit;
 
 import static org.rangeraudit.UpdateSolrWithEachLog.updateSolr;
+import static org.rangeraudit.Utilities.deleteLogFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,9 +32,10 @@ public class ProcessRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            String localLogPath = cloudClient.downloadFromCloud(cloudLogPath, localDir);
-            if (localLogPath != null && Files.exists(Paths.get(localLogPath))) {
-                updateSolr(localLogPath, jaasConfPath, solrPath);
+            File localLogPath = cloudClient.downloadFromCloud(cloudLogPath, localDir);
+            if (localLogPath != null && Files.exists(Paths.get(localLogPath.toString()))) {
+                updateSolr(localLogPath.toString(), jaasConfPath, solrPath);
+                deleteLogFile(localLogPath);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

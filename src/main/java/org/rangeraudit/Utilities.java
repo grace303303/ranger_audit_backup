@@ -120,6 +120,21 @@ public class Utilities {
         LOG.info("Deleted directory " + directory + ".");
     }
 
+    public static void deleteLogFile (File file) {
+        /**
+         * Force delete the "tmp_logs" folder.
+         */
+        if (!file.isFile()) {
+            return;
+        }
+        if (file.delete()) {
+            LOG.info("Deleted log file " + file + ".");
+        }
+        else {
+            LOG.info("Failed to delete log file " + file + ".");
+        }
+    }
+
     public static String getJaasConf() {
         /**
          * Get where the jaas.conf file is in the node.
