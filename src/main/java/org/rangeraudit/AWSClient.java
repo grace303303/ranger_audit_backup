@@ -1,5 +1,17 @@
 package org.rangeraudit;
 
+import static org.rangeraudit.Utilities.isDateStr;
+import static org.rangeraudit.Utilities.isLaterDate;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
@@ -8,18 +20,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import static org.rangeraudit.Utilities.isDateStr;
-import static org.rangeraudit.Utilities.isLaterDate;
 
 public class AWSClient implements CloudClient {
     private static final Logger LOG = LoggerFactory.getLogger(AWSClient.class);

@@ -1,5 +1,17 @@
 package org.rangeraudit;
 
+import static org.rangeraudit.Utilities.isDateStr;
+import static org.rangeraudit.Utilities.isLaterDate;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
@@ -8,18 +20,6 @@ import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.common.StorageSharedKeyCredential;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Objects;
-
-import static org.rangeraudit.Utilities.isDateStr;
-import static org.rangeraudit.Utilities.isLaterDate;
 
 public class AzureClient implements CloudClient {
     private static final Logger LOG = LoggerFactory.getLogger(AzureClient.class);

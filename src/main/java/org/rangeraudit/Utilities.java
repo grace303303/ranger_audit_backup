@@ -1,13 +1,5 @@
 package org.rangeraudit;
 
-import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import net.sourceforge.argparse4j.inf.Namespace;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +7,15 @@ import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 public class Utilities {
     private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
@@ -120,7 +121,7 @@ public class Utilities {
         LOG.info("Deleted directory " + directory + ".");
     }
 
-    public static void deleteLogFile (File file) {
+    public static void deleteLogFile(File file) {
         /**
          * Force delete the "tmp_logs" folder.
          */
@@ -129,8 +130,7 @@ public class Utilities {
         }
         if (file.delete()) {
             LOG.info("Deleted log file " + file + ".");
-        }
-        else {
+        } else {
             LOG.info("Failed to delete log file " + file + ".");
         }
     }

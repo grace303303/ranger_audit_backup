@@ -1,9 +1,9 @@
 package org.rangeraudit;
 
-import net.sourceforge.argparse4j.inf.Namespace;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.System.exit;
+import static org.rangeraudit.Utilities.deleteDirectory;
+import static org.rangeraudit.Utilities.getJaasConf;
+import static org.rangeraudit.Utilities.getUserInputs;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static java.lang.System.exit;
-import static org.rangeraudit.Utilities.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.sourceforge.argparse4j.inf.Namespace;
 
 
 public class Main {
