@@ -36,7 +36,7 @@ public class UpdateSolrWithEachLog {
          * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
          * @throws IOException If an I/O error occurs.
          */
-        SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
+        SolrClient solrClient = getSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
         try {
@@ -72,10 +72,8 @@ public class UpdateSolrWithEachLog {
                     line = reader.readLine();
                 }
 
-                long startTime = System.currentTimeMillis();
                     //Add the batch (a list with maximum documentsPerBatch of documents) into the client.
                     solrClient.add(batch);
-                LOG.info("Added 5000 docs takes {} ms", System.currentTimeMillis() - startTime);
             }
 
             LOG.info("Inserted " + localLogPath + " into Solr.");
@@ -130,7 +128,7 @@ public class UpdateSolrWithEachLog {
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, false);
         CloseableHttpClient httpClient = HttpClientUtil.createClient(params);
-        ConcurrentUpdateSolrClient client = concurrentUpdateSolrClientBuilder.withHttpClient(httpClient).withThreadCount(2).withQueueSize(5000).build();
+        ConcurrentUpdateSolrClient client = concurrentUpdateSolrClientBuilder.withHttpClient(httpClient).withThreadCount(2).withQueueSize(2000).build();
 
         return client;
 
