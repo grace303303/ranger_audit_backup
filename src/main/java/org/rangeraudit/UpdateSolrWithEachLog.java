@@ -36,7 +36,7 @@ public class UpdateSolrWithEachLog {
          * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
          * @throws IOException If an I/O error occurs.
          */
-        SolrClient solrClient = getSolrClient(jaasConfPath, solrPath);
+        SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
         try {
@@ -44,7 +44,7 @@ public class UpdateSolrWithEachLog {
             BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
             String line = reader.readLine();
             // Number of Solr documents to put in each batch sent to Solr.
-            final Integer documentsPerBatch = 5000;
+            final Integer documentsPerBatch = 1000;
 
             while (line != null) {
                 ArrayList<SolrInputDocument> batch = new ArrayList<>();
@@ -71,9 +71,8 @@ public class UpdateSolrWithEachLog {
                     counter += 1;
                     line = reader.readLine();
                 }
-
-                    //Add the batch (a list with maximum documentsPerBatch of documents) into the client.
-                    solrClient.add(batch);
+                //Add the batch (a list with maximum documentsPerBatch of documents) into the client.
+                solrClient.add(batch);
             }
 
             LOG.info("Inserted " + localLogPath + " into Solr.");
@@ -97,7 +96,7 @@ public class UpdateSolrWithEachLog {
         System.setProperty("java.security.auth.login.config", jaasConfPath);
         String urlString = "https://" + solrPath + "/solr/ranger_audits";
 
-        HttpSolrClient.Builder solrClientBuilder = new HttpSolrClient.Builder(urlString);
+        HttpSolrClient.Builder solrClientBuilder = new HttpSolrClient.Builder(urlString).withSocketTimeout(50000);
         Krb5HttpClientBuilder krbBuilder = new Krb5HttpClientBuilder();
         SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder.getHttpClientBuilder(java.util.Optional.empty());
         HttpClientUtil.setHttpClientBuilder(krb5HttpClientBuilder);
@@ -121,14 +120,14 @@ public class UpdateSolrWithEachLog {
         System.setProperty("java.security.auth.login.config", jaasConfPath);
         String urlString = "https://" + solrPath + "/solr/ranger_audits";
 
-        ConcurrentUpdateSolrClient.Builder concurrentUpdateSolrClientBuilder = new ConcurrentUpdateSolrClient.Builder(urlString);
+        ConcurrentUpdateSolrClient.Builder concurrentUpdateSolrClientBuilder = new ConcurrentUpdateSolrClient.Builder(urlString).withThreadCount(3);
         Krb5HttpClientBuilder krbBuilder = new Krb5HttpClientBuilder();
         SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder.getHttpClientBuilder(java.util.Optional.empty());
         HttpClientUtil.setHttpClientBuilder(krb5HttpClientBuilder);
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, false);
         CloseableHttpClient httpClient = HttpClientUtil.createClient(params);
-        ConcurrentUpdateSolrClient client = concurrentUpdateSolrClientBuilder.withHttpClient(httpClient).withThreadCount(2).withQueueSize(2000).build();
+        ConcurrentUpdateSolrClient client = concurrentUpdateSolrClientBuilder.withHttpClient(httpClient).build();
 
         return client;
 

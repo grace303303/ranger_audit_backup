@@ -26,12 +26,11 @@ public class Main {
     public static void main(String[] args) throws IOException {
         String LOCAL_DIR = "tmp_logs";
         try {
-
             // Get the jaas.conf file path
             final String jaasConfPath = getJaasConf();
             if (jaasConfPath.equals("")) {
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
-//                exit(1);
+                exit(1);
             }
 
             LOG.info("Using " + jaasConfPath + " for Kerberos authentication.");
