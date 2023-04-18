@@ -35,9 +35,6 @@ public class Utilities {
         parser.addArgument("--storage_location")
                 .required(true)
                 .help("The storage location where the data is stored, without the prefix. (example: my-bucket-name/my-env-name/data)");
-        parser.addArgument("--solr_path")
-                .required(true)
-                .help("The Solr path where we want to insert the content into. (example: my-env0.myname.xcu2-8y8x.wl.cloudera.site:8985)");
         parser.addArgument("--days_ago")
                 .type(Integer.class)
                 .required(true)
