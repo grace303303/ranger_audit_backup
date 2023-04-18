@@ -83,7 +83,7 @@ public class UpdateOpenSearchWithEachLog {
          */
         //Point to keystore with appropriate certificates for security.
         System.setProperty("javax.net.ssl.trustStore", "/Users/gzhu/dev/openSearchSSL/openSearchTrustStore");
-        System.setProperty("javax.net.ssl.trustStorePassword", "zhuyanru");
+        System.setProperty("javax.net.ssl.trustStorePassword", "");
 
         //Establish credentials to use basic authentication.
         //Only for demo purposes. Don't specify your credentials in code.
