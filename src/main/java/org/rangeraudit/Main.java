@@ -35,7 +35,7 @@ public class Main {
         try {
             // Get the jaas.conf file path
             final String jaasConfPath = getJaasConf();  // TODO this file must be possible to select via command line arguments
-            if (jaasConfPath.equals("")) {  // TODO better use jaasConfPath.isBlank()
+            if (jaasConfPath.equals("")) {
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
                 exit(1);
             }
