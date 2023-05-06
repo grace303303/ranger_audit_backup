@@ -28,6 +28,7 @@ public class UpdateSolrWithEachLog {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSolrWithEachLog.class);
 
     public static void updateSolr(String localLogPath, String jaasConfPath, String solrPath) {
+        // TODO javadocs must be before the method body, not inside - move this and in every other place
         /**
          * Insert each log file into Solr.
          *
@@ -36,6 +37,7 @@ public class UpdateSolrWithEachLog {
          * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
          * @throws IOException If an I/O error occurs.
          */
+        // TODO this is slow. Move this to a separate class and create a client in a constructor and then re-use it for each file
         SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
@@ -44,7 +46,7 @@ public class UpdateSolrWithEachLog {
             BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
             String line = reader.readLine();
             // Number of Solr documents to put in each batch sent to Solr.
-            final Integer documentsPerBatch = 1000;
+            final Integer documentsPerBatch = 1000; // TODO this value should be possible to setup in command line arguments.
 
             while (line != null) {
                 ArrayList<SolrInputDocument> batch = new ArrayList<>();

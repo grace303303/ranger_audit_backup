@@ -49,6 +49,7 @@ public class Utilities {
                 .help("AWS Secret Access Key.");
         parser.addArgument("--threads")
                 .type(Integer.class)
+                // TODO .setDefault(3)
                 .help("Number of threads to process Solr insertion.");
 
         Namespace res = null;

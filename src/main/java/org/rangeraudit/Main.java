@@ -1,5 +1,9 @@
+// TODO package name must identify the project. You are not realy working in the "organization RangerAudit". Name should be appropriate.
+//  ie. name.grace3030.rangerauditimport shows this is your own personal progect about rangerauditimport
+// com.cludera.trhunderhead.rangerauditimport shows this is for a "Cloudera company" project thunderhead and subproject rangeraudirimport or something
 package org.rangeraudit;
 
+// TODO static imports are mainly for constants, not methods - remov these and use System.exit, Utilities.getJaasConf etc
 import static java.lang.System.exit;
 import static org.rangeraudit.Utilities.deleteDirectory;
 import static org.rangeraudit.Utilities.getJaasConf;
@@ -20,6 +24,9 @@ import net.sourceforge.argparse4j.inf.Namespace;
 public class Main {
 
     static final String localDir = "tmp_logs";
+    // TODO why do you have both local variable and class field? Only use one of them and remove the other
+    // class constants must be uppercase_camelcase
+
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
@@ -27,8 +34,8 @@ public class Main {
         String LOCAL_DIR = "tmp_logs";
         try {
             // Get the jaas.conf file path
-            final String jaasConfPath = getJaasConf();
-            if (jaasConfPath.equals("")) {
+            final String jaasConfPath = getJaasConf();  // TODO this file must be possible to select via command line arguments
+            if (jaasConfPath.equals("")) {  // TODO better use jaasConfPath.isBlank()
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
                 exit(1);
             }
@@ -44,7 +51,7 @@ public class Main {
             final String solrPath = inputs.get("solr_path");
             Integer totalThreads = inputs.get("threads");
 
-            if (totalThreads == null) {
+            if (totalThreads == null) { // TODO remove this condition  and use default value (see Utilities.getUserInputs)
                 // Thread number is defaulted to be 1.
                 totalThreads = 1;
             }
@@ -77,7 +84,7 @@ public class Main {
                 });
             }
             executorService.shutdown();
-            while (!executorService.isTerminated()) {
+            while (!executorService.isTerminated()) {   // TODO do not use while loop with empty body - it will burn your CPU. do Thread.sleep(1000) inside to make it rest while waiting
             }
             LOG.info("Program completed!");
         } finally {

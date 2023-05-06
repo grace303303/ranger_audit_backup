@@ -56,7 +56,9 @@ public class AWSClient implements CloudClient {
         String bucketName = s3LocationList[0];
         String s3Path = s3LocationList[1];
 
-        Regions clientRegion = Regions.DEFAULT_REGION;
+        Regions clientRegion = Regions.DEFAULT_REGION;  // TODO this value must be possible to override via command line arguments
+
+        // TODO you build the client every time for every file. This is also slow because every time you authenticate it. Create the client inside constructor and re-use it as a field
         BasicAWSCredentials credentials = new BasicAWSCredentials(this.accessKeyID, this.secretKeyId);
 
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()

@@ -95,6 +95,7 @@ public class AzureClient implements CloudClient {
         String containerName = blobLocationList[0];
         String accountName = blobLocationList[1].split("\\.")[0];
 
+        // TODO you build the client every time for every file. This is also slow because every time you authenticate it. Create the client inside constructor and re-use it as a field
         StorageSharedKeyCredential credential = new StorageSharedKeyCredential(accountName, this.accessKeyID);
         String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);
 
