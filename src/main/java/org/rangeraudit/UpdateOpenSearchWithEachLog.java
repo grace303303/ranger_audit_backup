@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 public class UpdateOpenSearchWithEachLog {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateSolrWithEachLog.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateOpenSearchWithEachLog.class);
 
     public static void updateOpenSearch(String localLogPath) {
         /**
