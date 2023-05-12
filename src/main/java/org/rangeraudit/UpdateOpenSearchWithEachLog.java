@@ -67,10 +67,10 @@ public class UpdateOpenSearchWithEachLog {
             }
             client.close();
             reader.close();
-            LOG.info("Inserted " + localLogPath + " into Solr.");
+            LOG.info("Inserted " + localLogPath + " into Open Search.");
 
         } catch (IOException e) {
-            LOG.error("Failed at inserting log: " + localLogPath);
+            LOG.error("Failed at inserting Open Search: " + localLogPath);
             throw new RuntimeException(e);
         }
 
