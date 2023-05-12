@@ -78,22 +78,11 @@ public class UpdateOpenSearchWithEachLog {
 
     private static RestHighLevelClient getClient() {
         /**
-         * Get the RestHighLevelClient using SSL certificate.
+         * Get the RestHighLevelClient.
          *
          */
-        //Point to keystore with appropriate certificates for security.
-        System.setProperty("javax.net.ssl.trustStore", "/Users/gzhu/dev/openSearchSSL/openSearchTrustStore");
-        System.setProperty("javax.net.ssl.trustStorePassword", "");
-
-        //Establish credentials to use basic authentication.
-        //Only for demo purposes. Don't specify your credentials in code.
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-
-        credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials("admin", "admin"));
-
-        //Create a client.
-        RestClientBuilder builder = RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        RestClientBuilder builder = RestClient.builder(new HttpHost("host.docker.internal", 9200, "http"))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
