@@ -4,6 +4,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.json.simple.JSONObject;
@@ -81,17 +82,20 @@ public class UpdateOpenSearchWithEachLog {
          * Get the RestHighLevelClient.
          *
          */
-        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         RestClientBuilder builder = RestClient.builder(new HttpHost("host.docker.internal", 9200, "http"))
-                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                    @Override
-                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-                    }
-                });
+                .setRequestConfigCallback(
+                        new RestClientBuilder.RequestConfigCallback() {
+                            @Override
+                            public RequestConfig.Builder customizeRequestConfig(
+                                    RequestConfig.Builder requestConfigBuilder) {
+                                return requestConfigBuilder
+                                        .setConnectTimeout(5000)
+                                        .setSocketTimeout(600000);
+                            }
+                        });
+
         RestHighLevelClient client = new RestHighLevelClient(builder);
 
         return client;
     }
-
 }
