@@ -1,21 +1,28 @@
 package org.rangeraudit;
 
 import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.opensearch.action.index.IndexRequest;
-import org.opensearch.action.index.IndexResponse;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
-import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.json.jackson.JacksonJsonpMapper;
+import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch.core.bulk.BulkOperation;
+import org.opensearch.client.opensearch.core.CreateRequest;
+import org.opensearch.client.opensearch.core.CreateResponse;
+import org.opensearch.client.opensearch.core.IndexRequest;
+import org.opensearch.client.opensearch.core.BulkRequest;
+import org.opensearch.client.opensearch.core.IndexResponse;
+import org.opensearch.client.opensearch.indices.CreateIndexRequest;
+import org.opensearch.client.opensearch.indices.IndexSettings;
+import org.opensearch.client.transport.OpenSearchTransport;
+import org.opensearch.client.transport.Transport;
+import org.opensearch.client.transport.rest_client.RestClientTransport;
+import org.opensearch.client.util.ObjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +31,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
 
 public class UpdateOpenSearchWithEachLog {
 
@@ -36,65 +45,55 @@ public class UpdateOpenSearchWithEachLog {
          * @param logPathStr Path of the log file. For example "tmp_logs/20230111/hbaseRegional_ranger_audit_XYZ.log".
          * @throws IOException If an I/O error occurs.
          */
-        JSONParser jsonParser = new JSONParser();
+        try{
+            OpenSearchClient client = getClient();
+            final String INDEX = "ranger_audits";
 
-        try {
-            // Read the log file line by line to avoid the file being too large issue.
+            JSONParser jsonParser = new JSONParser();
             BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
             String line = reader.readLine();
-            RestHighLevelClient client = getClient();
 
             while (line != null) {
-                HashMap<String, Object> document = new HashMap();
-                JSONObject jsonObject;
+                JSONObject document;
                 try {
-                    jsonObject = (JSONObject) jsonParser.parse(line);
+                    document = (JSONObject) jsonParser.parse(line);
                 } catch (ParseException e) {
                     LOG.error("Parsing Json failed.");
                     throw new RuntimeException(e);
                 }
-                for (Iterator iterator = jsonObject.keySet().iterator(); iterator.hasNext(); ) {
-                    String key = (String) iterator.next();
-                    Object value = jsonObject.get(key);
-                    document.put(key, value);
-                }
-                IndexRequest request = new IndexRequest("ranger_audits");
-                request.source(document); //Place your content into the index's source.
-                IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT); //Add the document to the index.
-                LOG.trace("Added document into index: {}", indexResponse);
 
+////                BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
+//
+//                BulkRequest bulkRequest = new BulkRequest.Builder();
+
+
+
+                IndexRequest<JSONObject> indexRequest = new IndexRequest.Builder<JSONObject>().index(INDEX).document(document).build();
+                client.index(indexRequest);
                 line = reader.readLine();
-
             }
-            client.close();
             reader.close();
             LOG.info("Inserted " + localLogPath + " into Open Search.");
-
-        } catch (IOException e) {
+        } catch (IOException e){
             LOG.error("Failed at inserting Open Search: " + localLogPath);
             throw new RuntimeException(e);
         }
-
     }
 
-    private static RestHighLevelClient getClient() {
+    private static OpenSearchClient getClient() {
         /**
-         * Get the RestHighLevelClient.
+         * Get the RestClient.
          *
          */
-        RestClientBuilder builder = RestClient.builder(new HttpHost("host.docker.internal", 9200, "http"))
-                .setRequestConfigCallback(
-                        new RestClientBuilder.RequestConfigCallback() {
-                            @Override
-                            public RequestConfig.Builder customizeRequestConfig(
-                                    RequestConfig.Builder requestConfigBuilder) {
-                                return requestConfigBuilder
-                                        .setConnectTimeout(5000)
-                                        .setSocketTimeout(600000);
-                            }
-                        });
-
-        RestHighLevelClient client = new RestHighLevelClient(builder);
+        RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200, "http")).
+                setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder.setDefaultCredentialsProvider(new BasicCredentialsProvider());
+                    }
+                }).build();
+        OpenSearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        OpenSearchClient client = new OpenSearchClient(transport);
 
         return client;
     }
