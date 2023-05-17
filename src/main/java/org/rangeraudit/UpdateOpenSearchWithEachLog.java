@@ -48,7 +48,7 @@ public class UpdateOpenSearchWithEachLog {
          * @param logPathStr Path of the log file. For example "tmp_logs/20230111/hbaseRegional_ranger_audit_XYZ.log".
          * @throws IOException If an I/O error occurs.
          */
-        try{
+        try {
             OpenSearchClient client = getClient();
             JSONParser jsonParser = new JSONParser();
             BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
@@ -80,7 +80,7 @@ public class UpdateOpenSearchWithEachLog {
             }
             reader.close();
             LOG.info("Inserted " + localLogPath + " into Open Search.");
-        } catch (IOException e){
+        } catch (IOException e) {
             LOG.error("Failed at inserting Open Search: " + localLogPath);
             throw new RuntimeException(e);
         }
