@@ -11,12 +11,14 @@ import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch.core.BulkResponse;
 import org.opensearch.client.opensearch.core.bulk.BulkOperation;
 import org.opensearch.client.opensearch.core.CreateRequest;
 import org.opensearch.client.opensearch.core.CreateResponse;
 import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.BulkRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
+import org.opensearch.client.opensearch.core.bulk.IndexOperation;
 import org.opensearch.client.opensearch.indices.CreateIndexRequest;
 import org.opensearch.client.opensearch.indices.IndexSettings;
 import org.opensearch.client.transport.OpenSearchTransport;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,30 +50,33 @@ public class UpdateOpenSearchWithEachLog {
          */
         try{
             OpenSearchClient client = getClient();
-            final String INDEX = "ranger_audits";
-
             JSONParser jsonParser = new JSONParser();
             BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
             String line = reader.readLine();
 
+            final String INDEX = "ranger_audits";
+            Integer documentsPerBulk = 10000000;
+
             while (line != null) {
-                JSONObject document;
-                try {
-                    document = (JSONObject) jsonParser.parse(line);
-                } catch (ParseException e) {
-                    LOG.error("Parsing Json failed.");
-                    throw new RuntimeException(e);
+                ArrayList<BulkOperation> bulkOperationsList = new ArrayList<>();
+                Integer counter = 0;
+                while (line != null && counter < documentsPerBulk) {
+                    JSONObject document;
+                    try {
+                        document = (JSONObject) jsonParser.parse(line);
+                        IndexOperation<Map<String, Object>> indexOperation = new IndexOperation.Builder<Map<String, Object>>()
+                                .index(INDEX).id((String) document.get("id")).document(document).build();
+                        BulkOperation bulkOperation = new BulkOperation.Builder().index(indexOperation).build();
+                        bulkOperationsList.add(bulkOperation);
+                    } catch (ParseException e) {
+                        LOG.error("Parsing Json failed.");
+                        throw new RuntimeException(e);
+                    }
+                    counter += 1;
+                    line = reader.readLine();
                 }
-
-////                BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
-//
-//                BulkRequest bulkRequest = new BulkRequest.Builder();
-
-
-
-                IndexRequest<JSONObject> indexRequest = new IndexRequest.Builder<JSONObject>().index(INDEX).document(document).build();
-                client.index(indexRequest);
-                line = reader.readLine();
+                BulkRequest bulkRequest = new BulkRequest.Builder().operations(bulkOperationsList).build();
+                client.bulk(bulkRequest);
             }
             reader.close();
             LOG.info("Inserted " + localLogPath + " into Open Search.");
