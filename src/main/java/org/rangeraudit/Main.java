@@ -54,11 +54,16 @@ public class Main {
             if (cloudType.equalsIgnoreCase("aws")) {
                 String secretAccessKey = inputs.get("secret_access_key");
                 if (secretAccessKey == null) {
-                    LOG.error("Please provide AWS secret access key.");
+                    LOG.error("Missing paramter --secretAccessKey.");
+                    exit(1);
+                }
+                String region = inputs.get("region");
+                if (region == null) {
+                    LOG.error("Missing paramter --region.");
                     exit(1);
                 }
                 AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey);
-                ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(daysAgo);
+                ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(daysAgo, region);
 
                 LOG.info("Start the AWS download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {

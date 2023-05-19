@@ -47,6 +47,8 @@ public class Utilities {
                 .help("Cloud Access Key ID.");
         parser.addArgument("--secret_access_key")
                 .help("AWS Secret Access Key.");
+        parser.addArgument("--region")
+                .help("The region of the cloud, for example us-west-2.");
         parser.addArgument("--threads")
                 .type(Integer.class)
                 .help("Number of threads to process Solr insertion.");

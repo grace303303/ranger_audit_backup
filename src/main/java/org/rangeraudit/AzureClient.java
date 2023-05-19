@@ -38,7 +38,6 @@ public class AzureClient implements CloudClient {
         this.accessKeyID = accessKeyID;
     }
 
-    @Override
     public ArrayList<String> getAllValidLogPaths(int daysAgo) {
         /**
          * Download logs from AZURE Blob.

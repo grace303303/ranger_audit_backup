@@ -42,8 +42,7 @@ public class AWSClient implements CloudClient {
         this.secretKeyId = secretKeyId;
     }
 
-    @Override
-    public ArrayList<String> getAllValidLogPaths(int daysAgo) {
+    public ArrayList<String> getAllValidLogPaths(int daysAgo, String region) {
         /**
          * Get all log paths from S3 that match requirements: within the date, it is a ranger audit file etc.
          *
@@ -56,7 +55,7 @@ public class AWSClient implements CloudClient {
         String bucketName = s3LocationList[0];
         String s3Path = s3LocationList[1];
 
-        Regions clientRegion = Regions.DEFAULT_REGION;
+        Regions clientRegion = Regions.fromName(region);
         BasicAWSCredentials credentials = new BasicAWSCredentials(this.accessKeyID, this.secretKeyId);
 
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
