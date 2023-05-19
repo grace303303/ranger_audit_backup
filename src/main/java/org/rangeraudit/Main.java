@@ -1,10 +1,5 @@
 package org.rangeraudit;
 
-import static java.lang.System.exit;
-import static org.rangeraudit.Utilities.deleteDirectory;
-import static org.rangeraudit.Utilities.getJaasConf;
-import static org.rangeraudit.Utilities.getUserInputs;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,16 +22,16 @@ public class Main {
         String LOCAL_DIR = "tmp_logs";
         try {
             // Get the jaas.conf file path
-            final String jaasConfPath = getJaasConf();
+            final String jaasConfPath = Utilities.getJaasConf();
             if (jaasConfPath.equals("")) {
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
-                exit(1);
+//                System.exit(1);
             }
 
             LOG.info("Using " + jaasConfPath + " for Kerberos authentication.");
 
             // Get user inputs.
-            final Namespace inputs = getUserInputs(args);
+            final Namespace inputs = Utilities.getUserInputs(args);
             final String cloudType = inputs.get("cloud_type");
             final String storageLocation = inputs.get("storage_location");
             final String accessKeyId = inputs.get("access_key_id");
@@ -55,12 +50,12 @@ public class Main {
                 String secretAccessKey = inputs.get("secret_access_key");
                 if (secretAccessKey == null) {
                     LOG.error("Missing paramter --secretAccessKey.");
-                    exit(1);
+                    System.exit(1);
                 }
                 String region = inputs.get("region");
                 if (region == null) {
                     LOG.error("Missing paramter --region.");
-                    exit(1);
+                    System.exit(1);
                 }
                 AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey, region);
                 ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(daysAgo);
@@ -87,7 +82,7 @@ public class Main {
             LOG.info("Program completed!");
         } finally {
             // Delete "/tmp_logs".
-            deleteDirectory(new File(localDir));
+            Utilities.deleteDirectory(new File(localDir));
         }
     }
 }
