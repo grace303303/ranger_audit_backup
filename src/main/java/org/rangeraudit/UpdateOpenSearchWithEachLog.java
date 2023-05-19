@@ -80,10 +80,7 @@ public class UpdateOpenSearchWithEachLog {
         final HttpHost host = new HttpHost("search-sdxsaasgracetest1-qfx5zw4df23lgtdgp7aulkt2yu.us-west-2.es.amazonaws.com",
                 443, "https");
         final BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        //Only for demo purposes. Don't specify your credentials in code.
         credentialsProvider.setCredentials(new AuthScope(host), new UsernamePasswordCredentials("", ""));
-
-        //Initialize the client with SSL and TLS enabled
         final RestClient restClient = RestClient.builder(host).
                 setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
