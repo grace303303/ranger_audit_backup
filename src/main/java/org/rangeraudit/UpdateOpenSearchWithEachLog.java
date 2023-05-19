@@ -1,30 +1,23 @@
 package org.rangeraudit;
 
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.opensearch.core.BulkResponse;
 import org.opensearch.client.opensearch.core.bulk.BulkOperation;
-import org.opensearch.client.opensearch.core.CreateRequest;
-import org.opensearch.client.opensearch.core.CreateResponse;
-import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.BulkRequest;
-import org.opensearch.client.opensearch.core.IndexResponse;
 import org.opensearch.client.opensearch.core.bulk.IndexOperation;
-import org.opensearch.client.opensearch.indices.CreateIndexRequest;
-import org.opensearch.client.opensearch.indices.IndexSettings;
 import org.opensearch.client.transport.OpenSearchTransport;
-import org.opensearch.client.transport.Transport;
 import org.opensearch.client.transport.rest_client.RestClientTransport;
-import org.opensearch.client.util.ObjectBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +25,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Function;
 
 public class UpdateOpenSearchWithEachLog {
 
@@ -55,7 +45,7 @@ public class UpdateOpenSearchWithEachLog {
             String line = reader.readLine();
 
             final String INDEX = "ranger_audits";
-            Integer documentsPerBulk = 10000000;
+            Integer documentsPerBulk = 10000;
 
             while (line != null) {
                 ArrayList<BulkOperation> bulkOperationsList = new ArrayList<>();
@@ -87,20 +77,23 @@ public class UpdateOpenSearchWithEachLog {
     }
 
     private static OpenSearchClient getClient() {
-        /**
-         * Get the RestClient.
-         *
-         */
-        RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200, "http")).
+        final HttpHost host = new HttpHost("search-sdxsaasgracetest1-qfx5zw4df23lgtdgp7aulkt2yu.us-west-2.es.amazonaws.com",
+                443, "https");
+        final BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        //Only for demo purposes. Don't specify your credentials in code.
+        credentialsProvider.setCredentials(new AuthScope(host), new UsernamePasswordCredentials("", ""));
+
+        //Initialize the client with SSL and TLS enabled
+        final RestClient restClient = RestClient.builder(host).
                 setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder.setDefaultCredentialsProvider(new BasicCredentialsProvider());
+                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
                     }
                 }).build();
-        OpenSearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
-        OpenSearchClient client = new OpenSearchClient(transport);
 
+        final OpenSearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        final OpenSearchClient client = new OpenSearchClient(transport);
         return client;
     }
 }
