@@ -50,6 +50,7 @@ public class Utilities {
         parser.addArgument("--region")
                 .help("The region of the cloud, for example us-west-2.");
         parser.addArgument("--threads")
+                .setDefault(1)
                 .type(Integer.class)
                 .help("Number of threads to process Solr insertion.");
 

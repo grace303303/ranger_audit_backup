@@ -14,18 +14,16 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 public class Main {
 
-    static final String localDir = "tmp_logs";
-
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+    private static final String LOCAL_DIR = "tmp_logs";
 
     public static void main(String[] args) throws IOException {
-        String LOCAL_DIR = "tmp_logs";
         try {
             // Get the jaas.conf file path
             final String jaasConfPath = Utilities.getJaasConf();
             if (jaasConfPath.equals("")) {
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
-//                System.exit(1);
+                System.exit(1);
             }
 
             LOG.info("Using " + jaasConfPath + " for Kerberos authentication.");
@@ -38,11 +36,6 @@ public class Main {
             final Integer daysAgo = inputs.get("days_ago");
             final String solrPath = inputs.get("solr_path");
             Integer totalThreads = inputs.get("threads");
-
-            if (totalThreads == null) {
-                // Thread number is defaulted to be 1.
-                totalThreads = 1;
-            }
 
             // Start the process multithreading.
             ExecutorService executorService = Executors.newFixedThreadPool(totalThreads);
@@ -82,7 +75,7 @@ public class Main {
             LOG.info("Program completed!");
         } finally {
             // Delete "/tmp_logs".
-            Utilities.deleteDirectory(new File(localDir));
+            Utilities.deleteDirectory(new File(LOCAL_DIR));
         }
     }
 }
