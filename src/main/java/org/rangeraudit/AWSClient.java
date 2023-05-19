@@ -27,22 +27,18 @@ public class AWSClient implements CloudClient {
      * The s3 storage location where the data is stored, without the prefix. (example: my-bucket-name/my-env-name/data)
      */
     private final String storageLocation;
-    /**
-     * AWS Access Key ID.
-     */
-    private final String accessKeyID;
-    /**
-     * AWS Access Secret Key.
-     */
-    private final String secretKeyId;
 
-    public AWSClient(String storageLocation, String accessKeyID, String secretKeyId) {
+    private final Regions clientRegion;
+    private final BasicAWSCredentials credentials;
+
+    public AWSClient(String storageLocation, String accessKeyID, String secretKeyId, String region) {
         this.storageLocation = storageLocation;
-        this.accessKeyID = accessKeyID;
-        this.secretKeyId = secretKeyId;
+        this.clientRegion = Regions.fromName(region);
+        this.credentials = new BasicAWSCredentials(accessKeyID, secretKeyId);
     }
 
-    public ArrayList<String> getAllValidLogPaths(int daysAgo, String region) {
+    @Override
+    public ArrayList<String> getAllValidLogPaths(int daysAgo) {
         /**
          * Get all log paths from S3 that match requirements: within the date, it is a ranger audit file etc.
          *
@@ -51,12 +47,9 @@ public class AWSClient implements CloudClient {
          * @return An ArrayList of all the valid s3 log path.
          */
         ArrayList<String> allValidLogPaths = new ArrayList();
-        String[] s3LocationList = this.storageLocation.split("/", 2);
+        String[] s3LocationList = storageLocation.split("/", 2);
         String bucketName = s3LocationList[0];
         String s3Path = s3LocationList[1];
-
-        Regions clientRegion = Regions.fromName(region);
-        BasicAWSCredentials credentials = new BasicAWSCredentials(this.accessKeyID, this.secretKeyId);
 
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
@@ -99,11 +92,8 @@ public class AWSClient implements CloudClient {
          * @throws IOException If an I/O error occurs.
          */
         File localFilePath;
-        String[] s3LocationList = this.storageLocation.split("/", 2);
+        String[] s3LocationList = storageLocation.split("/", 2);
         String bucketName = s3LocationList[0];
-
-        Regions clientRegion = Regions.DEFAULT_REGION;
-        BasicAWSCredentials credentials = new BasicAWSCredentials(this.accessKeyID, this.secretKeyId);
 
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)

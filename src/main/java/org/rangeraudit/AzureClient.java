@@ -23,21 +23,17 @@ import com.azure.storage.common.StorageSharedKeyCredential;
 
 public class AzureClient implements CloudClient {
     private static final Logger LOG = LoggerFactory.getLogger(AzureClient.class);
-    /**
-     * The blob storage location where the data is stored, without the prefix.
-     * (example: data@myresourcegroup.dfs.core.windows.net )
-     */
-    private final String storageLocation;
-    /**
-     * The Access Key of the storage account.
-     */
-    private final String accessKeyID;
+    private final String containerName;
+    private final String accountName;
+    private final StorageSharedKeyCredential credentials;
 
     public AzureClient(String storageLocation, String accessKeyID) {
-        this.storageLocation = storageLocation;
-        this.accessKeyID = accessKeyID;
+        this.containerName = getContainerName(storageLocation);
+        this.accountName = getAccountName(storageLocation);
+        this.credentials = new StorageSharedKeyCredential(storageLocation, accessKeyID);
     }
 
+    @Override
     public ArrayList<String> getAllValidLogPaths(int daysAgo) {
         /**
          * Download logs from AZURE Blob.
@@ -48,14 +44,9 @@ public class AzureClient implements CloudClient {
          */
 
         ArrayList<String> allValidLogPaths = new ArrayList();
-        String[] blobLocationList = this.storageLocation.split("@", 2);
-        String containerName = blobLocationList[0];
-        String accountName = blobLocationList[1].split("\\.")[0];
-
-        StorageSharedKeyCredential credential = new StorageSharedKeyCredential(accountName, this.accessKeyID);
         String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);
 
-        BlobServiceClient storageClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credential).buildClient();
+        BlobServiceClient storageClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credentials).buildClient();
         BlobContainerClient blobContainerClient = storageClient.getBlobContainerClient(containerName);
 
         ListBlobsOptions options = new ListBlobsOptions().setPrefix("ranger/audit/");
@@ -90,14 +81,10 @@ public class AzureClient implements CloudClient {
          * @throws IOException If an I/O error occurs.
          */
         File localFilePath;
-        String[] blobLocationList = this.storageLocation.split("@", 2);
-        String containerName = blobLocationList[0];
-        String accountName = blobLocationList[1].split("\\.")[0];
 
-        StorageSharedKeyCredential credential = new StorageSharedKeyCredential(accountName, this.accessKeyID);
         String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);
 
-        BlobServiceClient storageClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credential).buildClient();
+        BlobServiceClient storageClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credentials).buildClient();
         BlobContainerClient blobContainerClient = storageClient.getBlobContainerClient(containerName);
 
         BlockBlobClient blobClient = blobContainerClient.getBlobClient(blobLogPath).getBlockBlobClient();
@@ -120,5 +107,15 @@ public class AzureClient implements CloudClient {
             e.printStackTrace();
         }
         return localFilePath;
+    }
+
+    private String getContainerName(String storageLocation) {
+        String[] blobLocationList = storageLocation.split("@", 2);
+        return blobLocationList[0];
+    }
+
+    private String getAccountName(String storageLocation) {
+        String[] blobLocationList = storageLocation.split("@", 2);
+        return blobLocationList[1].split("\\.")[0];
     }
 }

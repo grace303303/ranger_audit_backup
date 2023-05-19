@@ -62,8 +62,8 @@ public class Main {
                     LOG.error("Missing paramter --region.");
                     exit(1);
                 }
-                AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey);
-                ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(daysAgo, region);
+                AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey, region);
+                ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(daysAgo);
 
                 LOG.info("Start the AWS download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
