@@ -33,16 +33,15 @@ public class AzureClient implements CloudClient {
         this.credentials = new StorageSharedKeyCredential(storageLocation, accessKeyID);
     }
 
+    /**
+     * Download logs from Azure Blob.
+     *
+     * @param daysAgo How many days ago we want to start downloading the logs, for exmaple, put "0" will download
+     * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
+     * @return An ArrayList of all the valid blob log path.
+     */
     @Override
     public ArrayList<String> getAllValidLogPaths(int daysAgo) {
-        /**
-         * Download logs from AZURE Blob.
-         *
-         * @param daysAgo How many days ago we want to start downloading the logs, for exmaple, put "0" will download
-         * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
-         * @return An ArrayList of all the valid blob log path.
-         */
-
         ArrayList<String> allValidLogPaths = new ArrayList();
         String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);
 
@@ -71,15 +70,15 @@ public class AzureClient implements CloudClient {
         return allValidLogPaths;
     }
 
+    /**
+     * Download logs from Azure Blob.
+     *
+     * @param blobLogPath The log path on Azure blob, for example.
+     * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
+     * @throws IOException If an I/O error occurs.
+     */
     @Override
     public File downloadFromCloud(String blobLogPath, String localDir) throws IOException {
-        /**
-         * Download logs from AZURE Blob.
-         *
-         * @param blobLogPath The log path on Azure blob, for example.
-         * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
-         * @throws IOException If an I/O error occurs.
-         */
         File localFilePath;
 
         String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);

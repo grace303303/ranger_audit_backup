@@ -71,8 +71,11 @@ public class Main {
             }
             executorService.shutdown();
             while (!executorService.isTerminated()) {
+                Thread.sleep(1000);
             }
             LOG.info("Program completed!");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         } finally {
             // Delete "/tmp_logs".
             Utilities.deleteDirectory(new File(LOCAL_DIR));

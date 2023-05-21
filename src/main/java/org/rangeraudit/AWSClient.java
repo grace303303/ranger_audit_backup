@@ -23,9 +23,6 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public class AWSClient implements CloudClient {
     private static final Logger LOG = LoggerFactory.getLogger(AWSClient.class);
-    /**
-     * The s3 storage location where the data is stored, without the prefix. (example: my-bucket-name/my-env-name/data)
-     */
     private final String storageLocation;
 
     private final Regions clientRegion;
@@ -37,15 +34,15 @@ public class AWSClient implements CloudClient {
         this.credentials = new BasicAWSCredentials(accessKeyID, secretKeyId);
     }
 
+    /**
+     * Get all log paths from S3 that match requirements: within the date, it is a ranger audit file etc.
+     *
+     * @param daysAgo How many days ago we want to start downloading the logs, for exmaple, put "0" will download
+     * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
+     * @return An ArrayList of all the valid s3 log path.
+     */
     @Override
     public ArrayList<String> getAllValidLogPaths(int daysAgo) {
-        /**
-         * Get all log paths from S3 that match requirements: within the date, it is a ranger audit file etc.
-         *
-         * @param daysAgo How many days ago we want to start downloading the logs, for exmaple, put "0" will download
-         * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
-         * @return An ArrayList of all the valid s3 log path.
-         */
         ArrayList<String> allValidLogPaths = new ArrayList();
         String[] s3LocationList = storageLocation.split("/", 2);
         String bucketName = s3LocationList[0];
@@ -80,17 +77,15 @@ public class AWSClient implements CloudClient {
         return allValidLogPaths;
     }
 
+    /**
+     * Download logs from AWS S3.
+     *
+     * @param s3logPath The log path on AWS S3, for example, s3a://my-bucket/test/
+     * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
+     * @throws IOException If an I/O error occurs.
+     */
     @Override
     public File downloadFromCloud(String s3logPath, String localDir) throws IOException {
-        /**
-         * Download logs from AWS S3.
-         *
-         * @param logPath The log path on AWS S3, for example.
-         * @param daysAgo How many days ago we want to start downloading the logs, for example, put "0" will download
-         * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
-         * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
-         * @throws IOException If an I/O error occurs.
-         */
         File localFilePath;
         String[] s3LocationList = storageLocation.split("/", 2);
         String bucketName = s3LocationList[0];

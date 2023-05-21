@@ -21,10 +21,6 @@ public class Utilities {
     private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
 
     public static Namespace getUserInputs(String[] args) {
-        /**
-         * Get the user inputs, for example, the type of Cloud and storage location.
-         *
-         */
         ArgumentParser parser = ArgumentParsers.newFor("ranger-audits-reindex").build()
                 .defaultHelp(true)
                 .description("Download ranger audits from Cloud and upload them into Solr.");
@@ -67,21 +63,18 @@ public class Utilities {
 
     }
 
+    /**
+     * Get the date to start downloading files based on how many days ago.
+     * @param daysAgo -- How many days ago we want to start downloading the logs, for example,
+     * put "0" will return today's date, and put "2" will return the date before yesterday.
+     */
     public static LocalDate getDaysAgoDate(int daysAgo) {
-        /**
-         * Get the date to start downloading files based on how many days ago.
-         * @param daysAgo -- How many days ago we want to start downloading the logs, for example,
-         * put "0" will return today's date, and put "2" will return the date before yesterday.
-         */
         LocalDate todayDate = LocalDate.now();
         return todayDate.minusDays(daysAgo);
 
     }
 
     public static boolean isDateStr(String potentialDate) {
-        /**
-         * Determine if `potentialDate` is a string representing a date, such as "20221213".
-         */
         DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
 
         try {
@@ -93,12 +86,11 @@ public class Utilities {
         return true;
     }
 
+    /**
+     * Determine if `potentialDate` is a date on or after the date days ago. For example, if today is 20230101,
+     * and daysAgo is 2. This will return true if potentialDate is 20221230 but false if potentialDate is 20221229.
+     */
     public static boolean isLaterDate(String potentialDate, int daysAgo) {
-        /**
-         * Determine if `potentialDate` is a date on or after the date days ago. For example, if today is 20230101,
-         * and daysAgo is 2. This will return true if potentialDate is 20221230 but false if potentialDate is 20221229.
-         */
-
         if (!isDateStr(potentialDate)) {
             return false;
         }
@@ -114,9 +106,6 @@ public class Utilities {
     }
 
     public static void deleteDirectory(File directory) throws IOException {
-        /**
-         * Force delete the "tmp_logs" folder.
-         */
         if (!directory.isDirectory()) {
             return;
         }
@@ -125,9 +114,6 @@ public class Utilities {
     }
 
     public static void deleteLogFile(File file) {
-        /**
-         * Force delete the "tmp_logs" folder.
-         */
         if (!file.isFile()) {
             return;
         }
@@ -139,9 +125,6 @@ public class Utilities {
     }
 
     public static String getJaasConf() {
-        /**
-         * Get where the jaas.conf file is in the node.
-         */
         String findCommand = "find /run/cloudera-scm-agent/process -name solr.keytab | tail -n 1";
 
         try {
@@ -159,7 +142,6 @@ public class Utilities {
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
-
         return "";
     }
 

@@ -26,15 +26,15 @@ public class UpdateSolrWithEachLog {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSolrWithEachLog.class);
 
+    /**
+     * Insert each log file into Solr.
+     *
+     * @param localLogPath Path of the log file. For example "tmp_logs/20230111/hbaseRegional_ranger_audit_XYZ.log".
+     * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
+     * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
+     * @throws IOException If an I/O error occurs.
+     */
     public static void updateSolr(String localLogPath, String jaasConfPath, String solrPath) {
-        /**
-         * Insert each log file into Solr.
-         *
-         * @param logPathStr Path of the log file. For example "tmp_logs/20230111/hbaseRegional_ranger_audit_XYZ.log".
-         * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
-         * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
-         * @throws IOException If an I/O error occurs.
-         */
         SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
@@ -84,38 +84,13 @@ public class UpdateSolrWithEachLog {
 
     }
 
-    private static SolrClient getSolrClient(String jaasConfPath, String solrPath) {
-        /**
-         * Get the SolrClient with Kerberos authentication..
-         *
-         * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
-         * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
-         */
-
-        System.setProperty("java.security.auth.login.config", jaasConfPath);
-        String urlString = "https://" + solrPath + "/solr/ranger_audits";
-
-        HttpSolrClient.Builder solrClientBuilder = new HttpSolrClient.Builder(urlString).withSocketTimeout(50000);
-        Krb5HttpClientBuilder krbBuilder = new Krb5HttpClientBuilder();
-        SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder.getHttpClientBuilder(java.util.Optional.empty());
-        HttpClientUtil.setHttpClientBuilder(krb5HttpClientBuilder);
-        ModifiableSolrParams params = new ModifiableSolrParams();
-        params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, false);
-        CloseableHttpClient httpClient = HttpClientUtil.createClient(params);
-        SolrClient client = solrClientBuilder.withHttpClient(httpClient).build();
-
-        return client;
-
-    }
-
+    /**
+     * Get the SolrClient with Kerberos authentication..
+     *
+     * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
+     * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
+     */
     private static ConcurrentUpdateSolrClient getConcurrentSolrClient(String jaasConfPath, String solrPath) {
-        /**
-         * Get the SolrClient with Kerberos authentication..
-         *
-         * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
-         * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
-         */
-
         System.setProperty("java.security.auth.login.config", jaasConfPath);
         String urlString = "https://" + solrPath + "/solr/ranger_audits";
 
@@ -129,7 +104,6 @@ public class UpdateSolrWithEachLog {
         ConcurrentUpdateSolrClient client = concurrentUpdateSolrClientBuilder.withHttpClient(httpClient).build();
 
         return client;
-
     }
 
 
