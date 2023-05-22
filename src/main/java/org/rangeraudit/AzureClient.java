@@ -36,7 +36,7 @@ public class AzureClient implements CloudClient {
         this.containerName = getContainerName(storageLocation);
         this.accountName = getAccountName(storageLocation);
         this.credentials = new StorageSharedKeyCredential(
-                storageLocation, accessKeyID);
+                accountName, accessKeyID);
     }
 
     /**
