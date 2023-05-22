@@ -24,7 +24,7 @@ import com.azure.storage.common.StorageSharedKeyCredential;
 
 public class AzureClient implements CloudClient {
     /**
-     * The Azure Client used to run command for Azure.
+     * The Azure Client used to run commands for Azure.
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             AzureClient.class);

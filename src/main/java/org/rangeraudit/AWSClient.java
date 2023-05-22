@@ -23,23 +23,30 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public class AWSClient implements CloudClient {
+    /**
+     * The AWS Client used to run commands for AWS.
+     */
     private static final Logger LOG = LoggerFactory.getLogger(AWSClient.class);
     private final String storageLocation;
 
     private final Regions clientRegion;
     private final BasicAWSCredentials credentials;
 
-    public AWSClient(String storageLocation, String accessKeyID, String secretKeyId, String region) {
+    public AWSClient(final String storageLocation, final String accessKeyID,
+            final String secretKeyId, final String region) {
         this.storageLocation = storageLocation;
         this.clientRegion = Regions.fromName(region);
         this.credentials = new BasicAWSCredentials(accessKeyID, secretKeyId);
     }
 
     /**
-     * Get all log paths from S3 that match requirements: within the date, it is a ranger audit file etc.
+     * Get all log paths from S3 that match requirements: within the date,
+     * it is a ranger audit file etc.
      *
-     * @param daysAgo How many days ago we want to start downloading the logs, for exmaple, put "0" will download
-     * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
+     * @param daysAgo How many days ago we want to start downloading the logs,
+     *                for example, put "0" will download today's logs,
+     *                and put "2" will download the logs of today, yesterday,
+     *                and the day before yesterday's.
      * @return An ArrayList of all the valid s3 log path.
      */
     @Override
@@ -61,15 +68,13 @@ public class AWSClient implements CloudClient {
             if (!obj.getKey().contains("/ranger/audit")) {
                 continue;
             }
-
             String[] s3PathList = obj.getKey().split("/");
             String potentialDateStr = s3PathList[s3PathList.length - 2];
             String fileName = s3PathList[s3PathList.length - 1];
-
-            if (!isDateStr(potentialDateStr) || !isLaterDate(potentialDateStr, daysAgo)) {
+            if (!isDateStr(potentialDateStr)
+                    || !isLaterDate(potentialDateStr, daysAgo)) {
                 continue;
             }
-
             if (Objects.equals(fileName, "")) {
                 continue;
             }
@@ -81,12 +86,15 @@ public class AWSClient implements CloudClient {
     /**
      * Download logs from AWS S3.
      *
-     * @param s3logPath The log path on AWS S3, for example, s3a://my-bucket/test/
-     * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
+     * @param s3logPath The log path on AWS S3, for example,
+     *                  s3a://my-bucket/test/
+     * @param localDir The local location where we want to store the downloaded
+     *                 files temporarily, this defaults to "tmp_logs".
      * @throws IOException If an I/O error occurs.
      */
     @Override
-    public File downloadFromCloud(String s3logPath, String localDir) throws IOException {
+    public File downloadFromCloud(String s3logPath, String localDir)
+            throws IOException {
         File localFilePath;
         String[] s3LocationList = storageLocation.split("/", 2);
         String bucketName = s3LocationList[0];
@@ -108,7 +116,8 @@ public class AWSClient implements CloudClient {
         localFilePath = new File(dateFolder + "/" + fileName);
         localFilePath.createNewFile();
         try {
-            s3Client.getObject(new GetObjectRequest(bucketName, s3logPath), localFilePath);
+            s3Client.getObject(new GetObjectRequest(bucketName, s3logPath),
+                    localFilePath);
             LOG.info("Downloaded log to: " + localFilePath);
         } catch (Exception e) {
             LOG.info("Failed at downloading: " + s3logPath);
