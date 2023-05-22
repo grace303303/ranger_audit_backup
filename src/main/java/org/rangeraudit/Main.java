@@ -17,6 +17,7 @@ public class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private static final String LOCAL_DIR = "tmp_logs";
+    private static final Integer SLEEP_IN_MS = 1000;
 
     public static void main(String[] args) throws IOException {
         try {
@@ -33,7 +34,8 @@ public class Main {
             // Get user inputs.
             final String cloudType = inputs.get("cloud_type");
             String storageLocation = inputs.get("storage_location");
-            storageLocation = storageLocation.endsWith("/") ? storageLocation : storageLocation + "/";
+            storageLocation = storageLocation.endsWith("/") ? storageLocation
+                    : storageLocation + "/";
             final String accessKeyId = inputs.get("access_key_id");
             final Integer daysAgo = inputs.get("days_ago");
             final String solrPath = inputs.get("solr_path");
@@ -41,7 +43,8 @@ public class Main {
             Integer documentsPerBatch = inputs.get("documents_per_batch");
 
             // Start the process multithreading.
-            ExecutorService executorService = Executors.newFixedThreadPool(totalThreads);
+            ExecutorService executorService = Executors.newFixedThreadPool(
+                    totalThreads);
             if (cloudType.equalsIgnoreCase("aws")) {
                 String secretAccessKey = inputs.get("secret_access_key");
                 if (secretAccessKey == null) {
@@ -53,30 +56,39 @@ public class Main {
                     LOG.error("Missing parameter --region.");
                     System.exit(1);
                 }
-                AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey, region);
-                ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(daysAgo);
+                AWSClient awsClient = new AWSClient(storageLocation,
+                        accessKeyId, secretAccessKey, region);
+                ArrayList allValidLogPaths = awsClient.getAllValidLogPaths(
+                        daysAgo);
 
-                LOG.info("Start the AWS download, upload, and deletion process using " + totalThreads + " threads.");
+                LOG.info("Start the AWS download, upload, and deletion process "
+                        + "using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
-                            Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, awsClient, jaasConfPath,
+                            Runnable logRunnable = new ProcessRunnable(
+                                    validLogPath.toString(), LOCAL_DIR,
+                                    awsClient, jaasConfPath,
                                     solrPath, documentsPerBatch);
                             executorService.execute(logRunnable);
                         }
                 );
             } else {
-                AzureClient azureClient = new AzureClient(storageLocation, accessKeyId);
-                ArrayList allValidLogPaths = azureClient.getAllValidLogPaths(daysAgo);
+                AzureClient azureClient = new AzureClient(storageLocation,
+                        accessKeyId);
+                ArrayList allValidLogPaths = azureClient.getAllValidLogPaths(
+                        daysAgo);
 
-                LOG.info("Start the AZURE download, upload, and deletion process using " + totalThreads + " threads.");
+                LOG.info("Start the AZURE download, upload, and deletion "
+                        + "process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
-                    Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, azureClient, jaasConfPath,
-                            solrPath, documentsPerBatch);
+                    Runnable logRunnable = new ProcessRunnable(
+                            validLogPath.toString(), LOCAL_DIR, azureClient,
+                            jaasConfPath, solrPath, documentsPerBatch);
                     executorService.execute(logRunnable);
                 });
             }
             executorService.shutdown();
             while (!executorService.isTerminated()) {
-                Thread.sleep(1000);
+                Thread.sleep(SLEEP_IN_MS);
             }
             LOG.info("Program completed!");
         } catch (InterruptedException e) {
