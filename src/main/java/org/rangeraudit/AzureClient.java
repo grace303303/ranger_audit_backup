@@ -23,42 +23,55 @@ import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.common.StorageSharedKeyCredential;
 
 public class AzureClient implements CloudClient {
-    private static final Logger LOG = LoggerFactory.getLogger(AzureClient.class);
+    /**
+     * The Azure Client used to run command for Azure.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
+            AzureClient.class);
     private final String containerName;
     private final String accountName;
     private final StorageSharedKeyCredential credentials;
 
-    public AzureClient(String storageLocation, String accessKeyID) {
+    public AzureClient(final String storageLocation, final String accessKeyID) {
         this.containerName = getContainerName(storageLocation);
         this.accountName = getAccountName(storageLocation);
-        this.credentials = new StorageSharedKeyCredential(storageLocation, accessKeyID);
+        this.credentials = new StorageSharedKeyCredential(
+                storageLocation, accessKeyID);
     }
 
     /**
      * Download logs from Azure Blob.
      *
-     * @param daysAgo How many days ago we want to start downloading the logs, for exmaple, put "0" will download
-     * today's logs, and put "2" will download the logs of today, yesterday, and the day before yesterday's.
+     * @param daysAgo How many days ago we want to start downloading the logs,
+     *                for exmaple, put "0" will download
+     * today's logs, and put "2" will download the logs of today, yesterday,
+     *                and the day before yesterday's.
      * @return An ArrayList of all the valid blob log path.
      */
     @Override
-    public ArrayList<String> getAllValidLogPaths(int daysAgo) {
+    public ArrayList<String> getAllValidLogPaths(final int daysAgo) {
         ArrayList<String> allValidLogPaths = new ArrayList();
-        String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);
+        String endpoint = String.format(Locale.ROOT,
+                "https://%s.blob.core.windows.net", accountName);
 
-        BlobServiceClient storageClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credentials).buildClient();
-        BlobContainerClient blobContainerClient = storageClient.getBlobContainerClient(containerName);
+        BlobServiceClient storageClient = new BlobServiceClientBuilder()
+                .endpoint(endpoint).credential(credentials).buildClient();
+        BlobContainerClient blobContainerClient = storageClient
+                .getBlobContainerClient(containerName);
 
-        ListBlobsOptions options = new ListBlobsOptions().setPrefix("ranger/audit/");
+        ListBlobsOptions options = new ListBlobsOptions()
+                .setPrefix("ranger/audit/");
 
-        final PagedIterable<BlobItem> blobs = blobContainerClient.listBlobs(options, null);
+        final PagedIterable<BlobItem> blobs = blobContainerClient
+                .listBlobs(options, null);
 
         for (BlobItem blob : blobs) {
             String[] blobPathList = blob.getName().split("/");
             String potentialDateStr = blobPathList[blobPathList.length - 2];
             String fileName = blobPathList[blobPathList.length - 1];
 
-            if (!isDateStr(potentialDateStr) || !isLaterDate(potentialDateStr, daysAgo)) {
+            if (!isDateStr(potentialDateStr) || !isLaterDate(
+                    potentialDateStr, daysAgo)) {
                 continue;
             }
 
@@ -75,19 +88,25 @@ public class AzureClient implements CloudClient {
      * Download logs from Azure Blob.
      *
      * @param blobLogPath The log path on Azure blob, for example.
-     * @param localDir The local location where we want to store the downloaded files temporarily, this defaults to "tmp_logs".
+     * @param localDir The local location to store the downloaded files
+     *                 temporarily, this is defaulted to "tmp_logs".
      * @throws IOException If an I/O error occurs.
      */
     @Override
-    public File downloadFromCloud(String blobLogPath, String localDir) throws IOException {
+    public File downloadFromCloud(final String blobLogPath,
+            final String localDir) throws IOException {
         File localFilePath;
 
-        String endpoint = String.format(Locale.ROOT, "https://%s.blob.core.windows.net", accountName);
+        String endpoint = String.format(Locale.ROOT,
+                "https://%s.blob.core.windows.net", accountName);
 
-        BlobServiceClient storageClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credentials).buildClient();
-        BlobContainerClient blobContainerClient = storageClient.getBlobContainerClient(containerName);
+        BlobServiceClient storageClient = new BlobServiceClientBuilder()
+                .endpoint(endpoint).credential(credentials).buildClient();
+        BlobContainerClient blobContainerClient = storageClient
+                .getBlobContainerClient(containerName);
 
-        BlockBlobClient blobClient = blobContainerClient.getBlobClient(blobLogPath).getBlockBlobClient();
+        BlockBlobClient blobClient = blobContainerClient
+                .getBlobClient(blobLogPath).getBlockBlobClient();
         String[] blobPathList = blobLogPath.split("/");
         String potentialDateStr = blobPathList[blobPathList.length - 2];
         String fileName = blobPathList[blobPathList.length - 1];
@@ -109,12 +128,12 @@ public class AzureClient implements CloudClient {
         return localFilePath;
     }
 
-    private String getContainerName(String storageLocation) {
+    private String getContainerName(final String storageLocation) {
         String[] blobLocationList = storageLocation.split("@", 2);
         return blobLocationList[0];
     }
 
-    private String getAccountName(String storageLocation) {
+    private String getAccountName(final String storageLocation) {
         String[] blobLocationList = storageLocation.split("@", 2);
         return blobLocationList[1].split("\\.")[0];
     }
