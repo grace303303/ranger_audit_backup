@@ -22,24 +22,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-class UpdateSolrWithEachLog {
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateSolrWithEachLog.class);
+public final class UpdateSolrWithEachLog {
+    /**
+     * Insert data into Solr with Solr Client.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
+            UpdateSolrWithEachLog.class);
     /**
      * Insert each log file into Solr.
      *
-     * @param localLogPath Path of the log file. For example "tmp_logs/20230111/hbaseRegional_ranger_audit_XYZ.log".
-     * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
-     * @param solrPath Solr URL path, a combination of the hostname and port number,
-     * for example "master0.XYZ.dev.cldr.work:8985".
+     * @param localLogPath Path of the log file, for example
+     *                     "tmp_logs/20230111/XYZ.log".
+     * @param jaasConfPath The jaas.conf path, which will be used for Kerberos
+     *                     authentication.
+     * @param solrPath Solr URL path, a combination of the hostname and
+     *                 port, for example "master0.XYZ.dev.cldr.work:8985".
+     * @param documentsPerBatch Number of documents for each batch of insertion,
+     *                          this is defaulted to be 1000.
      * @throws IOException If an I/O error occurs.
      */
-    public static void updateSolr(String localLogPath, String jaasConfPath, String solrPath, Integer documentsPerBatch) {
+    public static void updateSolr(final String localLogPath,
+            final String jaasConfPath, final String solrPath,
+            final Integer documentsPerBatch) {
         SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
         try {
-            // Read the log file line by line to avoid the file being too large issue.
-            BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
+            // Read the log file line by line to avoid the file being too large.
+            BufferedReader reader = new BufferedReader(
+                    new FileReader(localLogPath));
             String line = reader.readLine();
             while (line != null) {
                 ArrayList<SolrInputDocument> batch = new ArrayList<>();
@@ -55,17 +66,20 @@ class UpdateSolrWithEachLog {
                         throw new RuntimeException(e);
                     }
 
-                    for (Iterator iterator = jsonObject.keySet().iterator(); iterator.hasNext(); ) {
+                    for (Iterator iterator = jsonObject.keySet().iterator();
+                         iterator.hasNext();) {
                         String key = (String) iterator.next();
                         Object value = jsonObject.get(key);
                         document.addField(key, value);
                     }
-                    // Add the document/data from a json object into the batch. Solr commits will happen automatically.
+                    // Add the document from a json object into the batch.
+                    // Solr commits will happen automatically.
                     batch.add(document);
                     counter += 1;
                     line = reader.readLine();
                 }
-                //Add the batch (a list with maximum documentsPerBatch of documents) into the client.
+                //Add the batch (a list with maximum documentsPerBatch
+                // of documents) into the client.
                 solrClient.add(batch);
             }
 
@@ -80,21 +94,30 @@ class UpdateSolrWithEachLog {
     /**
      * Get the SolrClient with Kerberos authentication..
      *
-     * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
-     * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
+     * @param jaasConfPath The jaas.conf path, which will be used for
+     *                     Kerberos authentication.
+     * @param solrPath Solr URL path, a combination of the hostname and
+     *                 port, for example "master0.XYZ.dev.cldr.work:8985".
+     * @return The Solr client that has a ConcurrentUpdateSolrClient type.
      */
-    private static ConcurrentUpdateSolrClient getConcurrentSolrClient(String jaasConfPath, String solrPath) {
+    private static ConcurrentUpdateSolrClient getConcurrentSolrClient(
+            final String jaasConfPath, final String solrPath) {
+        final Integer solrClientThreadCount = 3;
         System.setProperty("java.security.auth.login.config", jaasConfPath);
         String urlString = "https://" + solrPath + "/solr/ranger_audits";
 
-        ConcurrentUpdateSolrClient.Builder concurrentUpdateSolrClientBuilder = new ConcurrentUpdateSolrClient.Builder(urlString).withThreadCount(3);
+        ConcurrentUpdateSolrClient.Builder concurrentUpdateSolrClientBuilder =
+                new ConcurrentUpdateSolrClient.Builder(urlString)
+                        .withThreadCount(solrClientThreadCount);
         Krb5HttpClientBuilder krbBuilder = new Krb5HttpClientBuilder();
-        SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder.getHttpClientBuilder(java.util.Optional.empty());
+        SolrHttpClientBuilder krb5HttpClientBuilder = krbBuilder
+                .getHttpClientBuilder(java.util.Optional.empty());
         HttpClientUtil.setHttpClientBuilder(krb5HttpClientBuilder);
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, false);
         CloseableHttpClient httpClient = HttpClientUtil.createClient(params);
-        ConcurrentUpdateSolrClient client = concurrentUpdateSolrClientBuilder.withHttpClient(httpClient).build();
+        ConcurrentUpdateSolrClient client = concurrentUpdateSolrClientBuilder
+                .withHttpClient(httpClient).build();
 
         return client;
     }
