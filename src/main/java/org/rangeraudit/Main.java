@@ -31,7 +31,8 @@ public class Main {
 
             // Get user inputs.
             final String cloudType = inputs.get("cloud_type");
-            final String storageLocation = inputs.get("storage_location");
+            String storageLocation = inputs.get("storage_location");
+            storageLocation = storageLocation.endsWith("/") ? storageLocation : storageLocation + "/";
             final String accessKeyId = inputs.get("access_key_id");
             final Integer daysAgo = inputs.get("days_ago");
             final String solrPath = inputs.get("solr_path");
