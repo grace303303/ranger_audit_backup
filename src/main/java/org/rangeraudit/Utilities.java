@@ -43,6 +43,9 @@ public class Utilities {
                 .help("Cloud Access Key ID.");
         parser.addArgument("--secret_access_key")
                 .help("AWS Secret Access Key.");
+        parser.addArgument("--jaas_conf_path")
+                .setDefault("/run/cloudera-scm-agent/process")
+                .help("The path of the jaas_conf_path.");
         parser.addArgument("--region")
                 .help("The region of the cloud, for example us-west-2.");
         parser.addArgument("--threads")
@@ -124,25 +127,19 @@ public class Utilities {
         }
     }
 
-    public static String getJaasConf() {
-        String findCommand = "find /run/cloudera-scm-agent/process -name solr.keytab | tail -n 1";
-
+    public static String getJaasConf(String jaasConfPath) {
+        String findCommand = String.format("find %s -name solr.keytab | tail -n 1", jaasConfPath);
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", findCommand);
             Process process = processBuilder.start();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
             String strCurrentLine;
             while ((strCurrentLine = bufferedReader.readLine()) != null) {
-                if (strCurrentLine.contains("SOLR_SERVER")) {
-                    return strCurrentLine.replace("solr.keytab", "jaas.conf");
-                }
+                return strCurrentLine.replace("solr.keytab", "jaas.conf");
             }
-
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
         return "";
     }
-
 }

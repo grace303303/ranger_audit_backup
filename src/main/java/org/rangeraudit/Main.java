@@ -19,17 +19,17 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         try {
+            final Namespace inputs = Utilities.getUserInputs(args);
             // Get the jaas.conf file path
-            final String jaasConfPath = Utilities.getJaasConf();
+            String jaasConfPathInput = inputs.get("jaas_conf_path");
+            String jaasConfPath = Utilities.getJaasConf(jaasConfPathInput);
             if (jaasConfPath.equals("")) {
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
-                System.exit(1);
+//                System.exit(1);
             }
-
             LOG.info("Using " + jaasConfPath + " for Kerberos authentication.");
 
             // Get user inputs.
-            final Namespace inputs = Utilities.getUserInputs(args);
             final String cloudType = inputs.get("cloud_type");
             final String storageLocation = inputs.get("storage_location");
             final String accessKeyId = inputs.get("access_key_id");
@@ -42,12 +42,12 @@ public class Main {
             if (cloudType.equalsIgnoreCase("aws")) {
                 String secretAccessKey = inputs.get("secret_access_key");
                 if (secretAccessKey == null) {
-                    LOG.error("Missing paramter --secretAccessKey.");
+                    LOG.error("Missing parameter --secretAccessKey.");
                     System.exit(1);
                 }
                 String region = inputs.get("region");
                 if (region == null) {
-                    LOG.error("Missing paramter --region.");
+                    LOG.error("Missing parameter --region.");
                     System.exit(1);
                 }
                 AWSClient awsClient = new AWSClient(storageLocation, accessKeyId, secretAccessKey, region);
