@@ -1,3 +1,4 @@
+// Copyright (c) 2023 Cloudera, Inc. All rights reserved.
 package org.rangeraudit;
 
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -5,7 +6,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpClientUtil;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.Krb5HttpClientBuilder;
 import org.apache.solr.client.solrj.impl.SolrHttpClientBuilder;
 import org.apache.solr.common.SolrInputDocument;
@@ -22,16 +22,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class UpdateSolrWithEachLog {
-
+class UpdateSolrWithEachLog {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSolrWithEachLog.class);
-
     /**
      * Insert each log file into Solr.
      *
      * @param localLogPath Path of the log file. For example "tmp_logs/20230111/hbaseRegional_ranger_audit_XYZ.log".
      * @param jaasConfPath The jaas.conf path, which will be used for Kerberos authentication.
-     * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
+     * @param solrPath Solr URL path, a combination of the hostname and port number,
+     * for example "master0.XYZ.dev.cldr.work:8985".
      * @throws IOException If an I/O error occurs.
      */
     public static void updateSolr(String localLogPath, String jaasConfPath, String solrPath, Integer documentsPerBatch) {
@@ -78,7 +77,6 @@ public class UpdateSolrWithEachLog {
             throw new RuntimeException(e);
         }
     }
-
     /**
      * Get the SolrClient with Kerberos authentication..
      *
@@ -100,6 +98,4 @@ public class UpdateSolrWithEachLog {
 
         return client;
     }
-
-
 }

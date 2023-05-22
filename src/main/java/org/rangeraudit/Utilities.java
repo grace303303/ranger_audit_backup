@@ -1,3 +1,4 @@
+// Copyright (c) 2023 Cloudera, Inc. All rights reserved.
 package org.rangeraudit;
 
 import java.io.BufferedReader;
@@ -17,27 +18,46 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
-public class Utilities {
+public final class Utilities {
+    /**
+     * Static methods that will be used for running basic logics.
+     */
     private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
 
-    public static Namespace getUserInputs(String[] args) {
-        ArgumentParser parser = ArgumentParsers.newFor("ranger-audits-reindex").build()
+    private Utilities() {
+    }
+
+    /**
+     * Get the user inputs from CLI.
+     *
+     * @param args -- A list of the user inputs.
+     * @return The user inputs in a Namespace format.
+     */
+    public static Namespace getUserInputs(final String[] args) {
+        ArgumentParser parser = ArgumentParsers.newFor("ranger-audits-reindex")
+                .build()
                 .defaultHelp(true)
-                .description("Download ranger audits from Cloud and upload them into Solr.");
+                .description("Download ranger audits from Cloud and"
+                        + " upload them into Solr.");
         parser.addArgument("--cloud_type")
                 .choices("aws", "azure", "AWS", "AZURE", "Aws", "Azure")
                 .required(true)
-                .help("The cloud type, it should be either AWS or AZURE.");
+                .help("The cloud type, it should be either AWS or Azure.");
         parser.addArgument("--storage_location")
                 .required(true)
-                .help("The storage location where the data is stored, without the prefix. (example: my-bucket-name/my-env-name/data)");
+                .help("The storage location where the data is stored"
+                        + " without the prefix."
+                        + " example: my-bucket-name/my-env-name/data");
         parser.addArgument("--solr_path")
                 .required(true)
-                .help("The Solr path where we want to insert the content into. (example: my-env0.myname.xcu2-8y8x.wl.cloudera.site:8985)");
+                .help("The Solr path to insert the content."
+                        + "example: my-env0.myname.xcu2-8y8x.wl.cloudera"
+                        + ".site:8985");
         parser.addArgument("--days_ago")
                 .type(Integer.class)
                 .required(true)
-                .help("How many days ago we want to start downloading the logs.");
+                .help("How many days ago we want to start downloading the"
+                        + " logs.");
         parser.addArgument("--access_key_id")
                 .required(true)
                 .help("Cloud Access Key ID.");
@@ -72,8 +92,9 @@ public class Utilities {
 
     /**
      * Get the date to start downloading files based on how many days ago.
+     *
      * @param daysAgo -- How many days ago we want to start downloading the logs, for example,
-     * put "0" will return today's date, and put "2" will return the date before yesterday.
+     *                put "0" will return today's date, and put "2" will return the date before yesterday.
      */
     public static LocalDate getDaysAgoDate(int daysAgo) {
         LocalDate todayDate = LocalDate.now();

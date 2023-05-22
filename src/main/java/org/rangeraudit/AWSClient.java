@@ -1,3 +1,4 @@
+// Copyright (c) 2023 Cloudera, Inc. All rights reserved.
 package org.rangeraudit;
 
 import static org.rangeraudit.Utilities.isDateStr;
