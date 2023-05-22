@@ -12,21 +12,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessRunnable implements Runnable {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ProcessRunnable.class);
-
     private final String jaasConfPath;
     private final String solrPath;
     private final String cloudLogPath;
     private final String localDir;
     private final CloudClient cloudClient;
+    private final Integer documentsPerPatch;
 
-    public ProcessRunnable(String cloudLogPath, String localDir, CloudClient cloudClient, String jaasConfPath, String solrPath) {
+    public ProcessRunnable(String cloudLogPath, String localDir, CloudClient cloudClient, String jaasConfPath, String solrPath,
+            Integer documentsPerPatch) {
         this.jaasConfPath = jaasConfPath;
         this.solrPath = solrPath;
         this.cloudLogPath = cloudLogPath;
         this.localDir = localDir;
         this.cloudClient = cloudClient;
+        this.documentsPerPatch = documentsPerPatch;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ProcessRunnable implements Runnable {
         try {
             File localLogPath = cloudClient.downloadFromCloud(cloudLogPath, localDir);
             if (localLogPath != null && Files.exists(Paths.get(localLogPath.toString()))) {
-                updateSolr(localLogPath.toString(), jaasConfPath, solrPath);
+                updateSolr(localLogPath.toString(), jaasConfPath, solrPath, documentsPerPatch);
                 deleteLogFile(localLogPath);
             }
         } catch (IOException e) {

@@ -34,7 +34,7 @@ public class UpdateSolrWithEachLog {
      * @param solrPath Solr URL path, a combination of the hostname and port number, for example "master0.XYZ.dev.cldr.work:8985".
      * @throws IOException If an I/O error occurs.
      */
-    public static void updateSolr(String localLogPath, String jaasConfPath, String solrPath) {
+    public static void updateSolr(String localLogPath, String jaasConfPath, String solrPath, Integer documentsPerBatch) {
         SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
@@ -42,9 +42,6 @@ public class UpdateSolrWithEachLog {
             // Read the log file line by line to avoid the file being too large issue.
             BufferedReader reader = new BufferedReader(new FileReader(localLogPath));
             String line = reader.readLine();
-            // Number of Solr documents to put in each batch sent to Solr.
-            final Integer documentsPerBatch = 1000;
-
             while (line != null) {
                 ArrayList<SolrInputDocument> batch = new ArrayList<>();
                 Integer counter = 0;
@@ -66,7 +63,6 @@ public class UpdateSolrWithEachLog {
                     }
                     // Add the document/data from a json object into the batch. Solr commits will happen automatically.
                     batch.add(document);
-                    // Read next line.
                     counter += 1;
                     line = reader.readLine();
                 }
@@ -81,7 +77,6 @@ public class UpdateSolrWithEachLog {
             LOG.error("Failed at inserting log: " + localLogPath);
             throw new RuntimeException(e);
         }
-
     }
 
     /**

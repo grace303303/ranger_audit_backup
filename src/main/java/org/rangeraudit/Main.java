@@ -25,7 +25,7 @@ public class Main {
             String jaasConfPath = Utilities.getJaasConf(jaasConfPathInput);
             if (jaasConfPath.equals("")) {
                 LOG.info("Failed to find Solr jaas.conf. Program exits.");
-//                System.exit(1);
+                System.exit(1);
             }
             LOG.info("Using " + jaasConfPath + " for Kerberos authentication.");
 
@@ -36,6 +36,7 @@ public class Main {
             final Integer daysAgo = inputs.get("days_ago");
             final String solrPath = inputs.get("solr_path");
             Integer totalThreads = inputs.get("threads");
+            Integer documentsPerBatch = inputs.get("documents_per_batch");
 
             // Start the process multithreading.
             ExecutorService executorService = Executors.newFixedThreadPool(totalThreads);
@@ -55,7 +56,8 @@ public class Main {
 
                 LOG.info("Start the AWS download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
-                            Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, awsClient, jaasConfPath, solrPath);
+                            Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, awsClient, jaasConfPath,
+                                    solrPath, documentsPerBatch);
                             executorService.execute(logRunnable);
                         }
                 );
@@ -65,7 +67,8 @@ public class Main {
 
                 LOG.info("Start the AZURE download, upload, and deletion process using " + totalThreads + " threads.");
                 allValidLogPaths.forEach(validLogPath -> {
-                    Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, azureClient, jaasConfPath, solrPath);
+                    Runnable logRunnable = new ProcessRunnable(validLogPath.toString(), LOCAL_DIR, azureClient, jaasConfPath,
+                            solrPath, documentsPerBatch);
                     executorService.execute(logRunnable);
                 });
             }

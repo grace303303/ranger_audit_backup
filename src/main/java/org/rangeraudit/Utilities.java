@@ -52,6 +52,10 @@ public class Utilities {
                 .setDefault(1)
                 .type(Integer.class)
                 .help("Number of threads to process Solr insertion.");
+        parser.addArgument("--documents_per_batch")
+                .setDefault(1000)
+                .type(Integer.class)
+                .help("Number of documents per batch when inserting into Solr.");
 
         Namespace res = null;
 
