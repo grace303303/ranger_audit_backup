@@ -34,6 +34,9 @@ public final class Utilities {
      * @return The user inputs in a Namespace format.
      */
     public static Namespace getUserInputs(final String[] args) {
+        final Integer threadNumberDefault = 1;
+        final Integer documentsPerBatchDefault = 1000;
+        final String jaasConfPathDefault = "/run/cloudera-scm-agent/process";
         ArgumentParser parser = ArgumentParsers.newFor("ranger-audits-reindex")
                 .build()
                 .defaultHelp(true)
@@ -64,45 +67,51 @@ public final class Utilities {
         parser.addArgument("--secret_access_key")
                 .help("AWS Secret Access Key.");
         parser.addArgument("--jaas_conf_path")
-                .setDefault("/run/cloudera-scm-agent/process")
+                .setDefault(jaasConfPathDefault)
                 .help("The path of the jaas_conf_path.");
         parser.addArgument("--region")
                 .help("The region of the cloud, for example us-west-2.");
         parser.addArgument("--threads")
-                .setDefault(1)
+                .setDefault(threadNumberDefault)
                 .type(Integer.class)
                 .help("Number of threads to process Solr insertion.");
         parser.addArgument("--documents_per_batch")
-                .setDefault(1000)
+                .setDefault(documentsPerBatchDefault)
                 .type(Integer.class)
-                .help("Number of documents per batch when inserting into Solr.");
-
+                .help("Number of documents per batch when inserting into "
+                        + "Solr.");
         Namespace res = null;
-
         try {
             res = parser.parseArgs(args);
         } catch (ArgumentParserException e) {
             parser.handleError(e);
             System.exit(1);
         }
-
         return res;
-
     }
 
     /**
      * Get the date to start downloading files based on how many days ago.
      *
-     * @param daysAgo -- How many days ago we want to start downloading the logs, for example,
-     *                put "0" will return today's date, and put "2" will return the date before yesterday.
+     * @param daysAgo -- How many days ago we want to start downloading the
+     *                logs, for example, put "0" will return today's date,
+     *                and put "2" will return the date before yesterday.
+     * @return the date based on the number of days ago.
      */
-    public static LocalDate getDaysAgoDate(int daysAgo) {
+    public static LocalDate getDaysAgoDate(final int daysAgo) {
         LocalDate todayDate = LocalDate.now();
         return todayDate.minusDays(daysAgo);
 
     }
 
-    public static boolean isDateStr(String potentialDate) {
+    /**
+     * Determine if a string is in a date format or not.
+     *
+     * @param potentialDate -- A String converted from a directory name.
+     * @return true or false, for example, If the passed in String is
+     * "20230101", it returns true, and if it is "test", it returns false.
+     */
+    public static boolean isDateStr(final String potentialDate) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
 
         try {
@@ -115,10 +124,16 @@ public final class Utilities {
     }
 
     /**
-     * Determine if `potentialDate` is a date on or after the date days ago. For example, if today is 20230101,
-     * and daysAgo is 2. This will return true if potentialDate is 20221230 but false if potentialDate is 20221229.
+     * Determine if `potentialDate` is a date on or after the date days ago,
+     * for example, if today is 20230101, and daysAgo is 2.
+     * This will return true if potentialDate is 20221230 but false if
+     * potentialDate is 20221229.
+     * @param potentialDate -- The directory that is a date.
+     * @param daysAgo -- How many days ago we want to start getting the data.
+     * @return true or false.
      */
-    public static boolean isLaterDate(String potentialDate, int daysAgo) {
+    public static boolean isLaterDate(final String potentialDate,
+            final int daysAgo) {
         if (!isDateStr(potentialDate)) {
             return false;
         }
@@ -129,11 +144,18 @@ public final class Utilities {
 
         LocalDate dateDaysAgo = getDaysAgoDate(daysAgo);
 
-        return newPotentialDate.equals(dateDaysAgo) || newPotentialDate.isAfter(dateDaysAgo);
+        return newPotentialDate.equals(dateDaysAgo)
+                || newPotentialDate.isAfter(dateDaysAgo);
 
     }
 
-    public static void deleteDirectory(File directory) throws IOException {
+    /**
+     * Delete the tmp_logs directory.
+     * @param directory -- The tmp_logs directory that is used to store
+     *                  the downloaded files temporarily.
+     */
+    public static void deleteDirectory(final File directory)
+            throws IOException {
         if (!directory.isDirectory()) {
             return;
         }
@@ -141,7 +163,12 @@ public final class Utilities {
         LOG.info("Deleted directory " + directory + ".");
     }
 
-    public static void deleteLogFile(File file) {
+    /**
+     * Delete the downloaded file.
+     * @param file -- The path of the file, for example
+     *             tmp_logs/20230228/XYZ.log
+     */
+    public static void deleteLogFile(final File file) {
         if (!file.isFile()) {
             return;
         }
@@ -152,15 +179,25 @@ public final class Utilities {
         }
     }
 
-    public static String getJaasConf(String jaasConfPath) {
-        String findCommand = String.format("find %s -name solr.keytab | tail -n 1", jaasConfPath);
+    /**
+     * Get the path of jaas config file.
+     * @param jaasConfPath -- The path where the file is, this is defaulted
+     *                        to be "/run/cloudera-scm-agent/process".
+     * @return The full path of the jaas config file.
+     */
+    public static String getJaasConf(final String jaasConfPath) {
+        String findCommand = String.format("find %s -name solr.keytab "
+                + "| tail -n 1", jaasConfPath);
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", findCommand);
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "/bin/sh", "-c", findCommand);
             Process process = processBuilder.start();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
             String strCurrentLine;
             while ((strCurrentLine = bufferedReader.readLine()) != null) {
-                return strCurrentLine.replace("solr.keytab", "jaas.conf");
+                return strCurrentLine.replace(
+                        "solr.keytab", "jaas.conf");
             }
         } catch (Exception e) {
             LOG.error(e.getMessage());
