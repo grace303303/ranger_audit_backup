@@ -33,7 +33,7 @@ public final class Utilities {
      * @param args -- A list of the user inputs.
      * @return The user inputs in a Namespace format.
      */
-    public static Namespace getUserInputs(final String[] args) {
+    public static Namespace getUserInputs(String[] args) {
         final Integer threadNumberDefault = 1;
         final Integer documentsPerBatchDefault = 1000;
         final String jaasConfPathDefault = "/run/cloudera-scm-agent/process";
@@ -98,7 +98,7 @@ public final class Utilities {
      *                and put "2" will return the date before yesterday.
      * @return the date based on the number of days ago.
      */
-    public static LocalDate getDaysAgoDate(final int daysAgo) {
+    public static LocalDate getDaysAgoDate(int daysAgo) {
         LocalDate todayDate = LocalDate.now();
         return todayDate.minusDays(daysAgo);
 
@@ -111,7 +111,7 @@ public final class Utilities {
      * @return true or false, for example, If the passed in String is
      * "20230101", it returns true, and if it is "test", it returns false.
      */
-    public static boolean isDateStr(final String potentialDate) {
+    public static boolean isDateStr(String potentialDate) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
 
         try {
@@ -132,7 +132,7 @@ public final class Utilities {
      * @param daysAgo -- How many days ago we want to start getting the data.
      * @return true or false.
      */
-    public static boolean isLaterDate(final String potentialDate,
+    public static boolean isLaterDate(String potentialDate,
             final int daysAgo) {
         if (!isDateStr(potentialDate)) {
             return false;
@@ -154,7 +154,7 @@ public final class Utilities {
      * @param directory -- The tmp_logs directory that is used to store
      *                  the downloaded files temporarily.
      */
-    public static void deleteDirectory(final File directory)
+    public static void deleteDirectory(File directory)
             throws IOException {
         if (!directory.isDirectory()) {
             return;
@@ -168,7 +168,7 @@ public final class Utilities {
      * @param file -- The path of the file, for example
      *             tmp_logs/20230228/XYZ.log
      */
-    public static void deleteLogFile(final File file) {
+    public static void deleteLogFile(File file) {
         if (!file.isFile()) {
             return;
         }
@@ -185,7 +185,7 @@ public final class Utilities {
      *                        to be "/run/cloudera-scm-agent/process".
      * @return The full path of the jaas config file.
      */
-    public static String getJaasConf(final String jaasConfPath) {
+    public static String getJaasConf(String jaasConfPath) {
         String findCommand = String.format("find %s -name solr.keytab "
                 + "| tail -n 1", jaasConfPath);
         try {

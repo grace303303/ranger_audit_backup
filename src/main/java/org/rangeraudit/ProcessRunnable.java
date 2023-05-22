@@ -21,9 +21,9 @@ public final class ProcessRunnable implements Runnable {
     private final CloudClient cloudClient;
     private final Integer documentsPerPatch;
 
-    public ProcessRunnable(final String cloudLogPath, final String localDir,
-            final CloudClient cloudClient, final String jaasConfPath,
-            final String solrPath, final Integer documentsPerPatch) {
+    public ProcessRunnable(String cloudLogPath, String localDir,
+            CloudClient cloudClient, String jaasConfPath,
+            String solrPath, Integer documentsPerPatch) {
         this.cloudLogPath = cloudLogPath;
         this.localDir = localDir;
         this.cloudClient = cloudClient;

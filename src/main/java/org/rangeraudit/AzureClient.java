@@ -32,7 +32,7 @@ public class AzureClient implements CloudClient {
     private final String accountName;
     private final StorageSharedKeyCredential credentials;
 
-    public AzureClient(final String storageLocation, final String accessKeyID) {
+    public AzureClient(String storageLocation, String accessKeyID) {
         this.containerName = getContainerName(storageLocation);
         this.accountName = getAccountName(storageLocation);
         this.credentials = new StorageSharedKeyCredential(
@@ -49,7 +49,7 @@ public class AzureClient implements CloudClient {
      * @return An ArrayList of all the valid blob log path.
      */
     @Override
-    public ArrayList<String> getAllValidLogPaths(final int daysAgo) {
+    public ArrayList<String> getAllValidLogPaths(int daysAgo) {
         ArrayList<String> allValidLogPaths = new ArrayList();
         String endpoint = String.format(Locale.ROOT,
                 "https://%s.blob.core.windows.net", accountName);
@@ -93,18 +93,15 @@ public class AzureClient implements CloudClient {
      * @throws IOException If an I/O error occurs.
      */
     @Override
-    public File downloadFromCloud(final String blobLogPath,
-            final String localDir) throws IOException {
+    public File downloadFromCloud(String blobLogPath, String localDir)
+            throws IOException {
         File localFilePath;
-
         String endpoint = String.format(Locale.ROOT,
                 "https://%s.blob.core.windows.net", accountName);
-
         BlobServiceClient storageClient = new BlobServiceClientBuilder()
                 .endpoint(endpoint).credential(credentials).buildClient();
         BlobContainerClient blobContainerClient = storageClient
                 .getBlobContainerClient(containerName);
-
         BlockBlobClient blobClient = blobContainerClient
                 .getBlobClient(blobLogPath).getBlockBlobClient();
         String[] blobPathList = blobLogPath.split("/");

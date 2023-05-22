@@ -32,8 +32,8 @@ public class AWSClient implements CloudClient {
     private final Regions clientRegion;
     private final BasicAWSCredentials credentials;
 
-    public AWSClient(final String storageLocation, final String accessKeyID,
-            final String secretKeyId, final String region) {
+    public AWSClient(String storageLocation, String accessKeyID,
+            String secretKeyId, String region) {
         this.storageLocation = storageLocation;
         this.clientRegion = Regions.fromName(region);
         this.credentials = new BasicAWSCredentials(accessKeyID, secretKeyId);

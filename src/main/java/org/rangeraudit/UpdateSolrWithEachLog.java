@@ -41,9 +41,8 @@ public final class UpdateSolrWithEachLog {
      *                          this is defaulted to be 1000.
      * @throws IOException If an I/O error occurs.
      */
-    public static void updateSolr(final String localLogPath,
-            final String jaasConfPath, final String solrPath,
-            final Integer documentsPerBatch) {
+    public static void updateSolr(String localLogPath, String jaasConfPath,
+            String solrPath, Integer documentsPerBatch) {
         SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
@@ -101,7 +100,7 @@ public final class UpdateSolrWithEachLog {
      * @return The Solr client that has a ConcurrentUpdateSolrClient type.
      */
     private static ConcurrentUpdateSolrClient getConcurrentSolrClient(
-            final String jaasConfPath, final String solrPath) {
+            String jaasConfPath, String solrPath) {
         final Integer solrClientThreadCount = 3;
         System.setProperty("java.security.auth.login.config", jaasConfPath);
         String urlString = "https://" + solrPath + "/solr/ranger_audits";
