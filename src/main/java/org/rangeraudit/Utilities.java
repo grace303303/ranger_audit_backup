@@ -52,7 +52,6 @@ public final class Utilities {
                         + " without the prefix."
                         + " example: my-bucket-name/my-env-name/data");
         parser.addArgument("--solr_path")
-                .required(true)
                 .help("The Solr path to insert the content."
                         + "example: my-env0.myname.xcu2-8y8x.wl.cloudera"
                         + ".site:8985");
@@ -101,7 +100,6 @@ public final class Utilities {
     public static LocalDate getDaysAgoDate(int daysAgo) {
         LocalDate todayDate = LocalDate.now();
         return todayDate.minusDays(daysAgo);
-
     }
 
     /**

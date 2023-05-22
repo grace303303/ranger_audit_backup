@@ -46,7 +46,13 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <aws-java-sdk-s3.version>1.12.417</aws-java-sdk-s3.version>
+        <azure-storage-blob.version>12.20.1</azure-storage-blob.version>
+        <argparse4j.version>0.9.0</argparse4j.version>
+        <json.version>1.1.1</json.version>
         <slf4j.version>2.0.7</slf4j.version>
+        <solrj.version>8.1.0</solrj.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <junit.version>5.10.0-M1</junit.version>
     </properties>
     <dependencies>
         <dependency>
@@ -87,27 +93,27 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-storage-blob</artifactId>
-            <version>12.20.1</version>
+            <version>${azure-storage-blob.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.argparse4j</groupId>
             <artifactId>argparse4j</artifactId>
-            <version>0.9.0</version>
+            <version>${argparse4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
+            <version>${json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>8.1.0</version>
+            <version>${solrj.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
+            <version>${commons-io.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -118,6 +124,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

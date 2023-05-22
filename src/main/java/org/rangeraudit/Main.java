@@ -45,6 +45,10 @@ public class Main {
             // Start the process multithreading.
             ExecutorService executorService = Executors.newFixedThreadPool(
                     totalThreads);
+            if (solrPath == null) {
+                LOG.error("Missing parameter --solr_path.");
+                System.exit(1);
+            }
             if (cloudType.equalsIgnoreCase("aws")) {
                 String secretAccessKey = inputs.get("secret_access_key");
                 if (secretAccessKey == null) {
