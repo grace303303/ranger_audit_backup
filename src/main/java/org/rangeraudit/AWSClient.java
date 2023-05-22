@@ -71,8 +71,8 @@ public class AWSClient implements CloudClient {
             String[] s3PathList = obj.getKey().split("/");
             String potentialDateStr = s3PathList[s3PathList.length - 2];
             String fileName = s3PathList[s3PathList.length - 1];
-            if (!isDateStr(potentialDateStr)
-                    || !isLaterDate(potentialDateStr, daysAgo)) {
+            if (!isDateStr(potentialDateStr) || !isLaterDate(potentialDateStr,
+                    daysAgo)) {
                 continue;
             }
             if (Objects.equals(fileName, "")) {
