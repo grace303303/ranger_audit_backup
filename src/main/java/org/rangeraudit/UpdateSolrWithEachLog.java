@@ -43,7 +43,7 @@ public final class UpdateSolrWithEachLog {
      */
     public static void updateSolr(String localLogPath, String jaasConfPath,
             String solrPath, Integer documentsPerBatch) {
-        SolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
+        ConcurrentUpdateSolrClient solrClient = getConcurrentSolrClient(jaasConfPath, solrPath);
         JSONParser jsonParser = new JSONParser();
 
         try {
@@ -72,7 +72,6 @@ public final class UpdateSolrWithEachLog {
                         document.addField(key, value);
                     }
                     // Add the document from a json object into the batch.
-                    // Solr commits will happen automatically.
                     batch.add(document);
                     counter += 1;
                     line = reader.readLine();
@@ -81,10 +80,9 @@ public final class UpdateSolrWithEachLog {
                 // of documents) into the client.
                 solrClient.add(batch);
             }
-
+            solrClient.commit();
             LOG.info("Inserted " + localLogPath + " into Solr.");
             reader.close();
-
         } catch (IOException | SolrServerException e) {
             LOG.error("Failed at inserting log: " + localLogPath);
             throw new RuntimeException(e);
