@@ -184,6 +184,9 @@ public final class Utilities {
      * @return The full path of the jaas config file.
      */
     public static String getJaasConf(String jaasConfPath) {
+        if (jaasConfPath.endsWith("/")) {
+            jaasConfPath = jaasConfPath.substring(0, jaasConfPath.length() - 1);
+        }
         String findCommand = String.format("find %s -name solr.keytab "
                 + "| tail -n 1", jaasConfPath);
         try {
